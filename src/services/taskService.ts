@@ -25,7 +25,7 @@ export const getTasks = async () => {
   return data;
 };
 
-export const addTask = async (task: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => {
+export const addTask = async (task: Omit<Task, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) throw new Error('User must be authenticated to create tasks');
