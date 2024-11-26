@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import {
@@ -21,8 +20,8 @@ import {
 } from "@/components/ui/select";
 import { Command, CommandInput, CommandList, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import ClientCard from "./client/ClientCard";
 
-// Sample data for demonstration
 const countries = [
   { code: "US", name: "United States", cities: ["New York", "Los Angeles", "Chicago"] },
   { code: "GB", name: "United Kingdom", cities: ["London", "Manchester", "Birmingham"] },
@@ -53,6 +52,25 @@ const Clients = () => {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [citySearchOpen, setCitySearchOpen] = useState(false);
   const [citySearch, setCitySearch] = useState("");
+
+  // Sample clients data
+  const clients = [
+    {
+      id: 1,
+      firstName: "John",
+      lastName: "Doe",
+      email: "john@example.com",
+      phonePrefix: "+1",
+      phoneNumber: "555-0123",
+      country: "United States",
+      city: "New York",
+      website: "https://johndoe.com",
+      linkedin: "https://linkedin.com/in/johndoe",
+      activeProjects: 2,
+      totalRevenue: 12000,
+    },
+    // Add more sample clients as needed
+  ];
 
   const availableCities = countries.find(c => c.name === selectedCountry)?.cities || [];
   const filteredCities = availableCities.filter(city => 
@@ -268,30 +286,8 @@ const Clients = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[1, 2, 3, 4, 5, 6].map((client) => (
-          <Card key={client} className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-primary font-semibold">C{client}</span>
-              </div>
-              <div>
-                <h3 className="font-semibold">Client {client}</h3>
-                <p className="text-sm text-muted-foreground">
-                  client{client}@example.com
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 pt-4 border-t">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Active Projects</span>
-                <span className="font-medium">2</span>
-              </div>
-              <div className="flex justify-between text-sm mt-2">
-                <span className="text-muted-foreground">Total Revenue</span>
-                <span className="font-medium">$12,000</span>
-              </div>
-            </div>
-          </Card>
+        {clients.map((client) => (
+          <ClientCard key={client.id} client={client} />
         ))}
       </div>
     </div>
