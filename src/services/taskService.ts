@@ -12,6 +12,7 @@ export interface Task {
   position: number;
   created_at: string;
   updated_at: string;
+  created_by: string;
 }
 
 export const getTasks = async () => {
@@ -25,9 +26,16 @@ export const getTasks = async () => {
 };
 
 export const addTask = async (task: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('User must be authenticated to create tasks');
+
   const { data, error } = await supabase
     .from('tasks')
-    .insert(task)
+    .insert({
+      ...task,
+      created_by: user.id
+    })
     .select()
     .single();
   
