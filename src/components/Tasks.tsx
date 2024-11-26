@@ -61,15 +61,31 @@ const Tasks = () => {
     const taskToMove = tasks.find((t: Task) => t.id === parseInt(result.draggableId));
     if (!taskToMove) return;
 
+    // Optimistically update the UI
+    queryClient.setQueryData(['tasks'], (oldTasks: Task[] = []) => {
+      const newTasks = [...oldTasks];
+      const taskIndex = newTasks.findIndex(t => t.id === taskToMove.id);
+      if (taskIndex !== -1) {
+        const [removed] = newTasks.splice(taskIndex, 1);
+        removed.status = destinationColumnId;
+        removed.position = destinationIndex;
+        newTasks.splice(destinationIndex, 0, removed);
+      }
+      return newTasks;
+    });
+
+    // Update the server
     const updates: Partial<Task> = {
       position: destinationIndex,
+      status: destinationColumnId,
     };
 
-    if (sourceColumnId !== destinationColumnId) {
-      updates.status = destinationColumnId;
+    try {
+      await updateTaskMutation.mutateAsync({ id: taskToMove.id, ...updates });
+    } catch (error) {
+      // Revert optimistic update on error
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     }
-
-    await updateTaskMutation.mutateAsync({ id: taskToMove.id, ...updates });
   };
 
   const handleSubmit = async (data: Partial<Task>) => {
@@ -142,7 +158,7 @@ const Tasks = () => {
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`space-y-2 min-h-[200px] p-4 rounded-lg transition-colors ${
+                    className={`space-y-2 min-h-[200px] p-4 rounded-lg transition-all duration-200 ${
                       snapshot.isDraggingOver ? 'bg-muted/50' : 'bg-transparent'
                     }`}
                   >
@@ -157,11 +173,12 @@ const Tasks = () => {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            className={`transition-transform ${
-                              snapshot.isDragging ? 'rotate-[2deg] scale-105' : ''
+                            className={`transform transition-all duration-200 ${
+                              snapshot.isDragging ? 'rotate-[2deg] scale-105 shadow-lg' : ''
                             }`}
                             style={{
                               ...provided.draggableProps.style,
+                              transitionDuration: '0.2s',
                             }}
                           >
                             <TaskCard
