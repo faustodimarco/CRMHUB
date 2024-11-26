@@ -138,11 +138,13 @@ const Tasks = () => {
             <div key={columnId} className="space-y-4">
               <h3 className="font-semibold capitalize">{columnId.replace('_', ' ')}</h3>
               <Droppable droppableId={columnId}>
-                {(provided) => (
+                {(provided, snapshot) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className="space-y-2 min-h-[200px]"
+                    className={`space-y-2 min-h-[200px] p-4 rounded-lg transition-colors ${
+                      snapshot.isDraggingOver ? 'bg-muted/50' : 'bg-transparent'
+                    }`}
                   >
                     {columnTasks.map((task: Task, index: number) => (
                       <Draggable
@@ -150,11 +152,17 @@ const Tasks = () => {
                         draggableId={task.id.toString()}
                         index={index}
                       >
-                        {(provided) => (
+                        {(provided, snapshot) => (
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
+                            className={`transition-transform ${
+                              snapshot.isDragging ? 'rotate-[2deg] scale-105' : ''
+                            }`}
+                            style={{
+                              ...provided.draggableProps.style,
+                            }}
                           >
                             <TaskCard
                               task={task}
