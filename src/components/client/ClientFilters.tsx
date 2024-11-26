@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Filter, ArrowUpDown, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import type { Client } from "@/services/clientService";
 
@@ -71,33 +72,39 @@ export const ClientFilters = ({ clients, onFilterChange }: ClientFiltersProps) =
   };
 
   return (
-    <div className="flex flex-wrap gap-4 items-center mb-6">
-      <Select value={selectedCountry} onValueChange={handleCountryChange}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Filter by country" />
-        </SelectTrigger>
-        <SelectContent>
-          {countries.map((country) => (
-            <SelectItem key={country.code} value={country.name}>
-              {country.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
+        <Filter className="h-4 w-4 text-muted-foreground" />
+        <Select value={selectedCountry} onValueChange={handleCountryChange}>
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Country" />
+          </SelectTrigger>
+          <SelectContent>
+            {countries.map((country) => (
+              <SelectItem key={country.code} value={country.name}>
+                {country.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-      <Select value={sortBy} onValueChange={handleSortChange}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Sort by" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="recent">Most Recent</SelectItem>
-          <SelectItem value="revenue-high">Revenue (High to Low)</SelectItem>
-          <SelectItem value="revenue-low">Revenue (Low to High)</SelectItem>
-        </SelectContent>
-      </Select>
+      <div className="flex items-center gap-2">
+        <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+        <Select value={sortBy} onValueChange={handleSortChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="recent">Most Recent</SelectItem>
+            <SelectItem value="revenue-high">Revenue (High to Low)</SelectItem>
+            <SelectItem value="revenue-low">Revenue (Low to High)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-      <Button variant="outline" onClick={handleReset}>
-        Reset Filters
+      <Button variant="ghost" size="icon" onClick={handleReset} className="text-muted-foreground hover:text-foreground">
+        <RefreshCw className="h-4 w-4" />
       </Button>
     </div>
   );

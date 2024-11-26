@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -56,9 +56,12 @@ const Clients = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Clients</h2>
+        <div className="flex items-center gap-2">
+          <Users className="h-6 w-6 text-primary" />
+          <h2 className="text-2xl font-semibold">Clients</h2>
+        </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -75,15 +78,16 @@ const Clients = () => {
         </Dialog>
       </div>
 
-      <ClientSearch 
-        clients={clients} 
-        onSearchResults={setFilteredClients} 
-      />
-
-      <ClientFilters 
-        clients={clients}
-        onFilterChange={handleFilterChange}
-      />
+      <div className="flex items-center justify-between gap-4 bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4">
+        <ClientSearch 
+          clients={clients} 
+          onSearchResults={setFilteredClients} 
+        />
+        <ClientFilters 
+          clients={clients}
+          onFilterChange={handleFilterChange}
+        />
+      </div>
 
       <ClientList clients={filteredClients.length > 0 ? filteredClients : clients} />
     </div>
