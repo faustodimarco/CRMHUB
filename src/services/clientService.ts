@@ -34,3 +34,24 @@ export const getClients = async () => {
   if (error) throw error;
   return data;
 };
+
+export const updateClient = async (id: number, client: Partial<Omit<Client, 'id' | 'created_at'>>) => {
+  const { data, error } = await supabase
+    .from('clients')
+    .update(client)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const deleteClient = async (id: number) => {
+  const { error } = await supabase
+    .from('clients')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
+};
