@@ -21,6 +21,8 @@ import {
 import { Command, CommandInput, CommandList, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import ClientCard from "./client/ClientCard";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { addClient, getClients, type Client } from "@/services/clientService";
 
 const countries = [
   { code: "US", name: "United States", cities: ["New York", "Los Angeles", "Chicago"] },
@@ -37,6 +39,7 @@ const phonePrefixes = [
 const Clients = () => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [newClient, setNewClient] = useState({
     firstName: "",
     lastName: "",
@@ -53,49 +56,66 @@ const Clients = () => {
   const [citySearchOpen, setCitySearchOpen] = useState(false);
   const [citySearch, setCitySearch] = useState("");
 
-  // Sample clients data
-  const clients = [
-    {
-      id: 1,
-      firstName: "John",
-      lastName: "Doe",
-      email: "john@example.com",
-      phonePrefix: "+1",
-      phoneNumber: "555-0123",
-      country: "United States",
-      city: "New York",
-      website: "https://johndoe.com",
-      linkedin: "https://linkedin.com/in/johndoe",
-      activeProjects: 2,
-      totalRevenue: 12000,
+  const { data: clients = [], isLoading } = useQuery({
+    queryKey: ['clients'],
+    queryFn: getClients,
+  });
+
+  const addClientMutation = useMutation({
+    mutationFn: (clientData: Omit<Client, 'id' | 'created_at'>) => addClient(clientData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      toast({
+        title: "Client added",
+        description: `${newClient.firstName} ${newClient.lastName} has been added to your clients.`,
+      });
+      setNewClient({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phonePrefix: "+1",
+        phoneNumber: "",
+        country: "",
+        city: "",
+        website: "",
+        linkedin: "",
+      });
+      setOpen(false);
     },
-    // Add more sample clients as needed
-  ];
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to add client. Please try again.",
+        variant: "destructive",
+      });
+      console.error('Error adding client:', error);
+    },
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const clientData = {
+      first_name: newClient.firstName,
+      last_name: newClient.lastName,
+      email: newClient.email,
+      phone_prefix: newClient.phonePrefix,
+      phone_number: newClient.phoneNumber,
+      country: newClient.country,
+      city: newClient.city,
+      website: newClient.website,
+      linkedin: newClient.linkedin,
+    };
+    addClientMutation.mutate(clientData);
+  };
 
   const availableCities = countries.find(c => c.name === selectedCountry)?.cities || [];
   const filteredCities = availableCities.filter(city => 
     city.toLowerCase().includes(citySearch.toLowerCase())
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Client added",
-      description: `${newClient.firstName} ${newClient.lastName} has been added to your clients.`,
-    });
-    setNewClient({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phonePrefix: "+1",
-      phoneNumber: "",
-      country: "",
-      city: "",
-      website: "",
-      linkedin: "",
-    });
-    setOpen(false);
-  };
+  if (isLoading) {
+    return <div>Loading clients...</div>;
+  }
 
   return (
     <div className="space-y-4">
@@ -287,7 +307,23 @@ const Clients = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {clients.map((client) => (
-          <ClientCard key={client.id} client={client} />
+          <ClientCard 
+            key={client.id} 
+            client={{
+              id: client.id!,
+              firstName: client.first_name,
+              lastName: client.last_name,
+              email: client.email,
+              phonePrefix: client.phone_prefix,
+              phoneNumber: client.phone_number,
+              country: client.country,
+              city: client.city,
+              website: client.website || '',
+              linkedin: client.linkedin || '',
+              activeProjects: 0,
+              totalRevenue: 0,
+            }} 
+          />
         ))}
       </div>
     </div>
