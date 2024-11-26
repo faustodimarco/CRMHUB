@@ -27,7 +27,7 @@ const Tasks = () => {
   });
 
   const addTaskMutation = useMutation({
-    mutationFn: (taskData: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => addTask(taskData),
+    mutationFn: (taskData: Omit<Task, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => addTask(taskData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       toast({ title: "Task added successfully" });
@@ -82,10 +82,15 @@ const Tasks = () => {
         client_id: null,
         assigned_to: null,
         due_date: null,
-      } as Omit<Task, 'id' | 'created_at' | 'updated_at'>);
+      } as Omit<Task, 'id' | 'created_at' | 'updated_at' | 'created_by'>);
     }
     setIsDialogOpen(false);
     setEditTask(undefined);
+  };
+
+  const handleEdit = (task: Task) => {
+    setEditTask(task);
+    setIsDialogOpen(true);
   };
 
   if (isLoading) return <div>Loading tasks...</div>;
@@ -101,7 +106,10 @@ const Tasks = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Tasks</h2>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) setEditTask(undefined);
+        }}>
           <DialogTrigger asChild>
             <Button onClick={() => setEditTask(undefined)}>
               <Plus className="w-4 h-4 mr-2" />
@@ -150,7 +158,7 @@ const Tasks = () => {
                           >
                             <TaskCard
                               task={task}
-                              onEdit={setEditTask}
+                              onEdit={handleEdit}
                               onDelete={(id) => deleteTaskMutation.mutate(id)}
                             />
                           </div>
