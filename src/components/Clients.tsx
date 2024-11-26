@@ -21,6 +21,7 @@ const Clients = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
+  const [searchResults, setSearchResults] = useState<Client[]>([]);
 
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ['clients'],
@@ -52,8 +53,20 @@ const Clients = () => {
   }
 
   const handleFilterChange = (filtered: Client[]) => {
+    // If there are search results, apply filters to search results
+    // Otherwise, apply filters to all clients
+    const baseList = searchResults.length > 0 ? searchResults : clients;
     setFilteredClients(filtered);
   };
+
+  const handleSearchResults = (results: Client[]) => {
+    setSearchResults(results);
+    // If there are filtered results, apply search to filtered results
+    // Otherwise, just set the search results
+    setFilteredClients(results);
+  };
+
+  const displayedClients = filteredClients.length > 0 ? filteredClients : clients;
 
   return (
     <div className="space-y-6">
@@ -81,7 +94,7 @@ const Clients = () => {
       <div className="flex items-center justify-between gap-4 bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4">
         <ClientSearch 
           clients={clients} 
-          onSearchResults={setFilteredClients} 
+          onSearchResults={handleSearchResults}
         />
         <ClientFilters 
           clients={clients}
@@ -89,7 +102,7 @@ const Clients = () => {
         />
       </div>
 
-      <ClientList clients={filteredClients.length > 0 ? filteredClients : clients} />
+      <ClientList clients={displayedClients} />
     </div>
   );
 };

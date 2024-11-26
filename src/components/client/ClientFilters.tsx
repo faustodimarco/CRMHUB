@@ -15,19 +15,14 @@ interface ClientFiltersProps {
   onFilterChange: (filtered: Client[]) => void;
 }
 
-const countries = [
-  { code: "US", name: "United States" },
-  { code: "GB", name: "United Kingdom" },
-  { code: "FR", name: "France" },
-];
-
-type SortOption = "recent" | "revenue-high" | "revenue-low" | "none";
-
 export const ClientFilters = ({ clients, onFilterChange }: ClientFiltersProps) => {
   const [selectedCountry, setSelectedCountry] = useState<string>("");
-  const [sortBy, setSortBy] = useState<SortOption>("none");
+  const [sortBy, setSortBy] = useState<"recent" | "revenue-high" | "revenue-low" | "none">("none");
 
-  const applyFilters = (country: string, sort: SortOption) => {
+  // Get unique countries from clients
+  const countries = Array.from(new Set(clients.map(client => client.country))).filter(Boolean);
+
+  const applyFilters = (country: string, sort: typeof sortBy) => {
     let filtered = [...clients];
 
     // Apply country filter
@@ -60,7 +55,7 @@ export const ClientFilters = ({ clients, onFilterChange }: ClientFiltersProps) =
     applyFilters(value, sortBy);
   };
 
-  const handleSortChange = (value: SortOption) => {
+  const handleSortChange = (value: typeof sortBy) => {
     setSortBy(value);
     applyFilters(selectedCountry, value);
   };
@@ -81,8 +76,8 @@ export const ClientFilters = ({ clients, onFilterChange }: ClientFiltersProps) =
           </SelectTrigger>
           <SelectContent>
             {countries.map((country) => (
-              <SelectItem key={country.code} value={country.name}>
-                {country.name}
+              <SelectItem key={country} value={country}>
+                {country}
               </SelectItem>
             ))}
           </SelectContent>
@@ -103,7 +98,12 @@ export const ClientFilters = ({ clients, onFilterChange }: ClientFiltersProps) =
         </Select>
       </div>
 
-      <Button variant="ghost" size="icon" onClick={handleReset} className="text-muted-foreground hover:text-foreground">
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        onClick={handleReset} 
+        className="text-muted-foreground hover:text-foreground"
+      >
         <RefreshCw className="h-4 w-4" />
       </Button>
     </div>
