@@ -8,12 +8,12 @@ import Invoices from "@/components/Invoices";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-secondary/30 p-6">
+    <div className="min-h-screen bg-background p-6">
       <div className="max-w-[1400px] mx-auto">
         <h1 className="text-3xl font-bold mb-8">Web Agency CRM</h1>
         
         <Tabs defaultValue="dashboard" className="space-y-4">
-          <TabsList className="bg-white">
+          <TabsList className="bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="clients">Clients</TabsTrigger>
             <TabsTrigger value="tasks">Tasks</TabsTrigger>
