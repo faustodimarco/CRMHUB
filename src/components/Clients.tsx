@@ -14,6 +14,7 @@ import { addClient, getClients, type Client } from "@/services/clientService";
 import ClientSearch from "./client/ClientSearch";
 import AddClientForm from "./client/AddClientForm";
 import ClientList from "./client/ClientList";
+import { ClientFilters } from "./client/ClientFilters";
 
 const Clients = () => {
   const [open, setOpen] = useState(false);
@@ -50,6 +51,10 @@ const Clients = () => {
     return <div>Loading clients...</div>;
   }
 
+  const handleFilterChange = (filtered: Client[]) => {
+    setFilteredClients(filtered);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -73,6 +78,11 @@ const Clients = () => {
       <ClientSearch 
         clients={clients} 
         onSearchResults={setFilteredClients} 
+      />
+
+      <ClientFilters 
+        clients={clients}
+        onFilterChange={handleFilterChange}
       />
 
       <ClientList clients={filteredClients.length > 0 ? filteredClients : clients} />

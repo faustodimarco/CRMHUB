@@ -12,6 +12,7 @@ export interface Client {
   website?: string;
   linkedin?: string;
   created_at?: string;
+  total_revenue?: number;
 }
 
 export const addClient = async (client: Omit<Client, 'id' | 'created_at'>) => {
