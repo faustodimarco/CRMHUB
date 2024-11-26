@@ -1,8 +1,5 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -13,65 +10,10 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { Plus, Pencil, Trash2 } from "lucide-react";
-import { getTasks, addTask, updateTask, deleteTask, updateTaskPosition, type Task } from "@/services/taskService";
-
-const TaskDialog = ({ 
-  task, 
-  onSubmit, 
-  onClose 
-}: { 
-  task?: Task; 
-  onSubmit: (data: Partial<Task>) => void; 
-  onClose: () => void;
-}) => {
-  const [title, setTitle] = useState(task?.title ?? "");
-  const [description, setDescription] = useState(task?.description ?? "");
-  const [status, setStatus] = useState(task?.status ?? "todo");
-  const [priority, setPriority] = useState(task?.priority ?? "medium");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit({ title, description, status, priority });
-    onClose();
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
-        placeholder="Task title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        required
-      />
-      <Textarea
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <select
-        className="w-full p-2 border rounded"
-        value={status}
-        onChange={(e) => setStatus(e.target.value as Task['status'])}
-      >
-        <option value="todo">To Do</option>
-        <option value="in_progress">In Progress</option>
-        <option value="review">Review</option>
-        <option value="done">Done</option>
-      </select>
-      <select
-        className="w-full p-2 border rounded"
-        value={priority}
-        onChange={(e) => setPriority(e.target.value as Task['priority'])}
-      >
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-      </select>
-      <Button type="submit">{task ? "Update" : "Create"} Task</Button>
-    </form>
-  );
-};
+import { Plus } from "lucide-react";
+import { getTasks, addTask, updateTask, deleteTask, type Task } from "@/services/taskService";
+import TaskDialog from "./task/TaskDialog";
+import TaskCard from "./task/TaskCard";
 
 const Tasks = () => {
   const [editTask, setEditTask] = useState<Task | undefined>();
@@ -201,51 +143,17 @@ const Tasks = () => {
                         index={index}
                       >
                         {(provided) => (
-                          <Card
+                          <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            className="p-4 space-y-2"
                           >
-                            <div className="flex justify-between items-start">
-                              <h4 className="font-medium">{task.title}</h4>
-                              <div className="flex gap-2">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => {
-                                    setEditTask(task);
-                                    setIsDialogOpen(true);
-                                  }}
-                                >
-                                  <Pencil className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => deleteTaskMutation.mutate(task.id)}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </div>
-                            {task.description && (
-                              <p className="text-sm text-muted-foreground">
-                                {task.description}
-                              </p>
-                            )}
-                            <div className="flex items-center justify-between">
-                              <span className={`text-xs px-2 py-1 rounded ${
-                                task.priority === 'high' 
-                                  ? 'bg-destructive/10 text-destructive' 
-                                  : task.priority === 'medium'
-                                  ? 'bg-warning/10 text-warning'
-                                  : 'bg-primary/10 text-primary'
-                              }`}>
-                                {task.priority}
-                              </span>
-                            </div>
-                          </Card>
+                            <TaskCard
+                              task={task}
+                              onEdit={setEditTask}
+                              onDelete={(id) => deleteTaskMutation.mutate(id)}
+                            />
+                          </div>
                         )}
                       </Draggable>
                     ))}
