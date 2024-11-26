@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,7 +26,7 @@ const TaskDialog = ({ task, onSubmit, onClose }: TaskDialogProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="title">Title</Label>
+        <Label htmlFor="title" className="text-sm text-muted-foreground">Title</Label>
         <Input
           id="title"
           placeholder="Task title"
@@ -38,7 +37,7 @@ const TaskDialog = ({ task, onSubmit, onClose }: TaskDialogProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description" className="text-sm text-muted-foreground">Description</Label>
         <Textarea
           id="description"
           placeholder="Description"
@@ -48,7 +47,7 @@ const TaskDialog = ({ task, onSubmit, onClose }: TaskDialogProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="status">Status</Label>
+        <Label htmlFor="status" className="text-sm text-muted-foreground">Status</Label>
         <Select value={status} onValueChange={(value) => setStatus(value as Task['status'])}>
           <SelectTrigger id="status" className="w-full">
             <SelectValue placeholder="Select status" />
@@ -63,7 +62,7 @@ const TaskDialog = ({ task, onSubmit, onClose }: TaskDialogProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="priority">Priority</Label>
+        <Label htmlFor="priority" className="text-sm text-muted-foreground">Priority</Label>
         <Select value={priority} onValueChange={(value) => setPriority(value as Task['priority'])}>
           <SelectTrigger id="priority" className="w-full">
             <SelectValue placeholder="Select priority" />
