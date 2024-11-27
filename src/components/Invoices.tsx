@@ -104,14 +104,14 @@ const Invoices = () => {
       <Card>
         <div className="p-6">
           <div className="grid grid-cols-8 gap-4 mb-4 text-sm font-medium text-muted-foreground">
-            <div className="col-span-1"></div>
-            <div className="col-span-1">Invoice #</div>
-            <div className="col-span-2">Client</div>
-            <div>Date</div>
-            <div>Due Date</div>
-            <div>Amount</div>
-            <div>Status</div>
-            <div></div>
+            <div className="col-span-1 text-left">Select</div>
+            <div className="col-span-1 text-left">Invoice #</div>
+            <div className="col-span-2 text-left">Client</div>
+            <div className="text-left">Date</div>
+            <div className="text-left">Due Date</div>
+            <div className="text-left">Amount</div>
+            <div className="text-left">Status</div>
+            <div className="text-right">Actions</div>
           </div>
 
           <div className="space-y-1">
@@ -120,7 +120,7 @@ const Invoices = () => {
                 key={invoice.id} 
                 className="grid grid-cols-8 gap-4 p-4 text-sm items-center rounded-lg transition-all hover:bg-muted/50 border border-transparent hover:border-border"
               >
-                <div className="col-span-1">
+                <div className="col-span-1 text-left">
                   <Checkbox
                     checked={selectedInvoices.includes(invoice.id)}
                     onCheckedChange={(checked) => {
@@ -132,12 +132,12 @@ const Invoices = () => {
                     }}
                   />
                 </div>
-                <div className="col-span-1 font-medium">{invoice.invoice_number}</div>
-                <div className="col-span-2 font-medium text-foreground">{invoice.client_name}</div>
-                <div className="text-muted-foreground">{new Date(invoice.issue_date).toLocaleDateString()}</div>
-                <div className="text-muted-foreground">{new Date(invoice.due_date).toLocaleDateString()}</div>
-                <div className="font-medium">${invoice.amount.toLocaleString()}</div>
-                <div>
+                <div className="col-span-1 font-medium text-left">{invoice.invoice_number}</div>
+                <div className="col-span-2 font-medium text-foreground text-left">{invoice.client_name}</div>
+                <div className="text-muted-foreground text-left">{new Date(invoice.issue_date).toLocaleDateString()}</div>
+                <div className="text-muted-foreground text-left">{new Date(invoice.due_date).toLocaleDateString()}</div>
+                <div className="font-medium text-left">${invoice.amount.toLocaleString()}</div>
+                <div className="text-left">
                   <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
                     invoice.status === 'paid'
                       ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400'
@@ -148,7 +148,7 @@ const Invoices = () => {
                     {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                   </span>
                 </div>
-                <div className="flex justify-end">
+                <div className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
