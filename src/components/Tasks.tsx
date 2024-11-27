@@ -134,7 +134,11 @@ const Tasks = () => {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            style={provided.draggableProps.style}
+                            style={{
+                              ...provided.draggableProps.style,
+                              transform: provided.draggableProps.style?.transform,
+                              transition: provided.draggableProps.style?.transition,
+                            }}
                           >
                             <TaskCard
                               task={task}
