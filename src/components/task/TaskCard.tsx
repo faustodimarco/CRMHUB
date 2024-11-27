@@ -53,12 +53,11 @@ const TaskCard = ({ task, onEdit, onDelete }: TaskCardProps) => {
 
   return (
     <Card 
-      className="group relative p-4 space-y-3 hover:shadow-md transition-all duration-200 border-l-4 hover:scale-[1.02]"
+      className="group relative p-4 space-y-3 hover:shadow-md transition-all duration-200 border-l-4"
       style={{ 
         borderLeftColor: task.priority === 'high' ? 'rgb(239, 68, 68)' : 
                         task.priority === 'medium' ? 'rgb(234, 179, 8)' : 
-                        'rgb(34, 197, 94)',
-        transformOrigin: '0 0'
+                        'rgb(34, 197, 94)'
       }}
     >
       <div className="flex items-start justify-between gap-2">
