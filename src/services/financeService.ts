@@ -63,9 +63,12 @@ export const deleteExpense = async (id: number) => {
   const { error } = await supabase
     .from('expenses')
     .delete()
-    .match({ id });
+    .eq('id', id);
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error deleting expense:', error);
+    throw error;
+  }
 };
 
 export const uploadCsv = async (file: File, type: 'revenue' | 'expenses') => {
