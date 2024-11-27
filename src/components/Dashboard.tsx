@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { BarChart, Activity, Users, FileText } from "lucide-react";
+import { BarChart, Activity, Users, FileText, FileCheck, FileEdit, FileMinus, CheckSquare, Edit, XSquare } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getClients } from "@/services/clientService";
 import { getTasks } from "@/services/taskService";
@@ -59,6 +59,30 @@ const Dashboard = () => {
     .sort((a, b) => b.date.getTime() - a.date.getTime())
     .slice(0, 4);
 
+  const getActivityIcon = (type: string, status: string) => {
+    if (type === 'invoice') {
+      switch (status) {
+        case 'created':
+          return <FileCheck className="w-4 h-4 text-warning" />;
+        case 'paid':
+          return <FileCheck className="w-4 h-4 text-success" />;
+        case 'deleted':
+          return <FileMinus className="w-4 h-4 text-destructive" />;
+        default:
+          return <FileEdit className="w-4 h-4 text-warning" />;
+      }
+    } else { // task
+      switch (status) {
+        case 'done':
+          return <CheckSquare className="w-4 h-4 text-success" />;
+        case 'deleted':
+          return <XSquare className="w-4 h-4 text-destructive" />;
+        default:
+          return <Edit className="w-4 h-4 text-primary" />;
+      }
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -117,9 +141,12 @@ const Dashboard = () => {
           <div className="space-y-4">
             {recentActivities.map((activity, i) => (
               <div key={i} className="flex items-center space-x-3">
-                <div className={`w-2 h-2 rounded-full ${
-                  activity.type === 'task' ? 'bg-primary' : 'bg-warning'
-                }`} />
+                <div className="flex items-center space-x-2">
+                  {getActivityIcon(activity.type, activity.text.split(' ')[1])}
+                  <div className={`w-2 h-2 rounded-full ${
+                    activity.type === 'task' ? 'bg-primary' : 'bg-warning'
+                  }`} />
+                </div>
                 <p className="text-sm text-muted-foreground">{activity.text}</p>
               </div>
             ))}
