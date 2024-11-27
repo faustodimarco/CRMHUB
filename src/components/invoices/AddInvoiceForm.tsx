@@ -22,6 +22,8 @@ import {
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+type InvoiceStatus = 'draft' | 'pending' | 'paid';
+
 const AddInvoiceForm = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -32,10 +34,10 @@ const AddInvoiceForm = () => {
     invoice_number: "",
     client_name: "",
     amount: "",
-    status: "draft" as const,
+    status: "draft" as InvoiceStatus,
   });
 
-  const { mutate, isLoading } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async () => {
       if (!file || !issueDate || !dueDate) throw new Error("Missing required fields");
       return uploadInvoice(file, {
@@ -112,7 +114,7 @@ const AddInvoiceForm = () => {
           <Label>Status</Label>
           <Select
             value={invoice.status}
-            onValueChange={(value: 'draft' | 'pending' | 'paid') => 
+            onValueChange={(value: InvoiceStatus) => 
               setInvoice({ ...invoice, status: value })
             }
           >
@@ -190,7 +192,7 @@ const AddInvoiceForm = () => {
         />
       </div>
 
-      <Button type="submit" disabled={isLoading}>
+      <Button type="submit" disabled={isPending}>
         Create Invoice
       </Button>
     </form>

@@ -27,6 +27,8 @@ interface EditInvoiceFormProps {
   onClose: () => void;
 }
 
+type InvoiceStatus = 'draft' | 'pending' | 'paid';
+
 const EditInvoiceForm = ({ invoice, onClose }: EditInvoiceFormProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -36,10 +38,10 @@ const EditInvoiceForm = ({ invoice, onClose }: EditInvoiceFormProps) => {
     invoice_number: invoice.invoice_number,
     client_name: invoice.client_name,
     amount: invoice.amount.toString(),
-    status: invoice.status,
+    status: invoice.status as InvoiceStatus,
   });
 
-  const { mutate, isLoading } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: () => updateInvoice(invoice.id, {
       ...formData,
       amount: parseFloat(formData.amount),
@@ -104,7 +106,7 @@ const EditInvoiceForm = ({ invoice, onClose }: EditInvoiceFormProps) => {
           <Label>Status</Label>
           <Select
             value={formData.status}
-            onValueChange={(value: 'draft' | 'pending' | 'paid') => 
+            onValueChange={(value: InvoiceStatus) => 
               setFormData({ ...formData, status: value })
             }
           >
@@ -175,7 +177,7 @@ const EditInvoiceForm = ({ invoice, onClose }: EditInvoiceFormProps) => {
         <Button type="button" variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={isPending}>
           Update Invoice
         </Button>
       </div>
