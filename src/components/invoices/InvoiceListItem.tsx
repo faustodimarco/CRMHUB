@@ -37,7 +37,7 @@ export const InvoiceListItem = ({
       <div className="text-muted-foreground truncate">{new Date(invoice.issue_date).toLocaleDateString()}</div>
       <div className="text-muted-foreground truncate">{new Date(invoice.due_date).toLocaleDateString()}</div>
       <div className="font-medium truncate">${invoice.amount.toLocaleString()}</div>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
           invoice.status === 'paid'
             ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400'
