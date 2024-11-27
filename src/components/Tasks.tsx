@@ -98,7 +98,7 @@ const Tasks = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <TaskHeader
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={setIsDialogOpen}
@@ -111,14 +111,16 @@ const Tasks = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {Object.entries(columns).map(([columnId, columnTasks]) => (
             <div key={columnId} className="space-y-4">
-              <h3 className="font-semibold capitalize">{columnId.replace('_', ' ')}</h3>
+              <h3 className="font-semibold capitalize text-muted-foreground">
+                {columnId.replace('_', ' ')}
+              </h3>
               <Droppable droppableId={columnId}>
                 {(provided, snapshot) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`space-y-2 min-h-[200px] p-4 rounded-lg transition-all duration-200 ${
-                      snapshot.isDraggingOver ? 'bg-muted/50' : 'bg-transparent'
+                    className={`space-y-3 min-h-[200px] p-4 rounded-lg border border-border/50 transition-all duration-200 ${
+                      snapshot.isDraggingOver ? 'bg-muted/50 border-primary/50' : 'bg-card/50 backdrop-blur-sm'
                     }`}
                   >
                     {columnTasks.map((task: Task, index: number) => (

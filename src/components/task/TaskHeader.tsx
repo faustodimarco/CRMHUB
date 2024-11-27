@@ -7,8 +7,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import TaskDialog from "./TaskDialog";
 import { Task } from "@/services/taskService";
+import TaskDialog from "./TaskDialog";
 
 interface TaskHeaderProps {
   isDialogOpen: boolean;
@@ -18,18 +18,18 @@ interface TaskHeaderProps {
   editTask?: Task;
 }
 
-const TaskHeader = ({ 
-  isDialogOpen, 
-  setIsDialogOpen, 
-  setEditTask, 
-  onSubmit, 
-  editTask 
+const TaskHeader = ({
+  isDialogOpen,
+  setIsDialogOpen,
+  setEditTask,
+  onSubmit,
+  editTask,
 }: TaskHeaderProps) => {
   return (
-    <div className="flex justify-between items-center border-b pb-4 mb-6">
+    <div className="flex justify-between items-center border-b border-border/50 pb-4">
       <div className="flex items-center gap-2">
-        <ClipboardList className="w-5 h-5 text-primary" />
-        <h2 className="text-2xl font-bold">Tasks</h2>
+        <ClipboardList className="h-6 w-6 text-primary" />
+        <h2 className="text-2xl font-semibold">Tasks</h2>
       </div>
       <Dialog open={isDialogOpen} onOpenChange={(open) => {
         setIsDialogOpen(open);
@@ -41,7 +41,7 @@ const TaskHeader = ({
             Add Task
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>{editTask ? "Edit" : "Add"} Task</DialogTitle>
           </DialogHeader>
