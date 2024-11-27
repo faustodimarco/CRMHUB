@@ -14,15 +14,17 @@ const Index = () => {
         
         <div className="flex gap-6">
           <div className="w-64 shrink-0">
-            <Card className="p-4">
-              <TabsList className="flex flex-col h-auto bg-transparent space-y-2">
-                <TabsTrigger value="dashboard" className="w-full justify-start">Dashboard</TabsTrigger>
-                <TabsTrigger value="clients" className="w-full justify-start">Clients</TabsTrigger>
-                <TabsTrigger value="tasks" className="w-full justify-start">Tasks</TabsTrigger>
-                <TabsTrigger value="finances" className="w-full justify-start">Finances</TabsTrigger>
-                <TabsTrigger value="invoices" className="w-full justify-start">Invoices</TabsTrigger>
-              </TabsList>
-            </Card>
+            <Tabs defaultValue="dashboard" orientation="vertical">
+              <Card className="p-4">
+                <TabsList className="flex flex-col h-auto bg-transparent space-y-2">
+                  <TabsTrigger value="dashboard" className="w-full justify-start">Dashboard</TabsTrigger>
+                  <TabsTrigger value="clients" className="w-full justify-start">Clients</TabsTrigger>
+                  <TabsTrigger value="tasks" className="w-full justify-start">Tasks</TabsTrigger>
+                  <TabsTrigger value="finances" className="w-full justify-start">Finances</TabsTrigger>
+                  <TabsTrigger value="invoices" className="w-full justify-start">Invoices</TabsTrigger>
+                </TabsList>
+              </Card>
+            </Tabs>
           </div>
 
           <div className="flex-1">
