@@ -134,14 +134,10 @@ const Tasks = () => {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            style={{
-                              ...provided.draggableProps.style,
-                              transform: snapshot.isDragging
-                                ? provided.draggableProps.style?.transform
-                                : 'translate(0, 0)',
-                              transition: 'transform 0.2s ease-in-out',
-                            }}
-                            className={snapshot.isDragging ? 'rotate-[2deg] scale-105 shadow-lg' : ''}
+                            style={provided.draggableProps.style}
+                            className={`transition-transform duration-200 ${
+                              snapshot.isDragging ? 'rotate-[2deg] scale-105 shadow-lg' : ''
+                            }`}
                           >
                             <TaskCard
                               task={task}
