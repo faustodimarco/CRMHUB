@@ -6,7 +6,7 @@ alter table revenue add column recurring_end_date date;
 alter table expenses add column is_recurring boolean default false;
 alter table expenses add column recurring_end_date date;
 
--- Create function to handle recurring entries only for the current month
+-- Create function to handle recurring entries
 create or replace function handle_recurring_entries()
 returns trigger as $$
 declare
