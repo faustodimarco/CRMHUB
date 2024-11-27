@@ -4,7 +4,7 @@ import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Settings as SettingsIcon, Sun, Moon, Lock, Trash2, ArrowLeft } from "lucide-react";
+import { Settings as SettingsIcon, Sun, Moon, Lock, Trash2, ArrowLeft, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,22 @@ const Settings = () => {
   const [newPassword, setNewPassword] = useState("");
   const { user } = useAuth();
 
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const logoData = e.target?.result as string;
+        localStorage.setItem('app-logo', logoData);
+        toast({
+          title: "Logo updated successfully",
+          description: "Your new logo will be displayed on the dashboard"
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const deleteCompletedTasksMutation = useMutation({
     mutationFn: deleteCompletedTasks,
     onSuccess: () => {
@@ -37,7 +53,6 @@ const Settings = () => {
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Password change logic would go here
     toast({ title: "Password changed successfully" });
     setCurrentPassword("");
     setNewPassword("");
@@ -63,6 +78,33 @@ const Settings = () => {
         </div>
 
         <div className="grid gap-6">
+          <Card className="border border-border/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle>App Logo</CardTitle>
+              <CardDescription>
+                Upload a logo to display on your dashboard
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Logo Image</Label>
+                  <div className="text-sm text-muted-foreground">
+                    Upload an image to use as your app logo (PNG, JPG)
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="w-[200px]"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="border border-border/50 backdrop-blur-sm">
             <CardHeader>
               <CardTitle>Appearance</CardTitle>
