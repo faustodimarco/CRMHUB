@@ -12,7 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings as SettingsIcon, User, LogOut } from "lucide-react";
+import { Settings as SettingsIcon, LogOut } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -24,13 +25,25 @@ const queryClient = new QueryClient();
 function UserNav() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  
+  // Get initials from email
+  const getInitials = (email: string) => {
+    return email
+      .split('@')[0]
+      .split('.')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase();
+  };
 
   return (
     <div className="absolute top-4 right-4">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-            <User className="h-5 w-5" />
+            <Avatar className="h-8 w-8">
+              <AvatarFallback>{user?.email ? getInitials(user.email) : ''}</AvatarFallback>
+            </Avatar>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
