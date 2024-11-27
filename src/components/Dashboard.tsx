@@ -5,6 +5,7 @@ import { getClients } from "@/services/clientService";
 import { getTasks } from "@/services/taskService";
 import { getInvoices } from "@/services/invoiceService";
 import { getRevenue } from "@/services/financeService";
+import { differenceInDays } from "date-fns";
 
 const Dashboard = () => {
   const { data: clients = [] } = useQuery({
@@ -43,7 +44,7 @@ const Dashboard = () => {
     .filter(task => task.priority === 'high' && task.status !== 'done')
     .slice(0, 4);
 
-  // Get recent activities from tasks and invoices
+  // Filter activities within last 2 days and sort by date
   const recentActivities = [
     ...tasks.map(task => ({
       type: 'task',
@@ -56,6 +57,10 @@ const Dashboard = () => {
       date: new Date(invoice.created_at),
     })),
   ]
+    .filter(activity => {
+      const daysDifference = differenceInDays(new Date(), activity.date);
+      return daysDifference <= 2;
+    })
     .sort((a, b) => b.date.getTime() - a.date.getTime())
     .slice(0, 4);
 
@@ -145,6 +150,9 @@ const Dashboard = () => {
                 <p className="text-sm text-muted-foreground">{activity.text}</p>
               </div>
             ))}
+            {recentActivities.length === 0 && (
+              <p className="text-sm text-muted-foreground">No recent activities in the last 2 days</p>
+            )}
           </div>
         </Card>
 
