@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings, User, LogOut } from "lucide-react";
+import { Settings as SettingsIcon, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -22,7 +22,7 @@ import Settings from "./pages/Settings";
 const queryClient = new QueryClient();
 
 function UserNav() {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -41,11 +41,11 @@ function UserNav() {
           </div>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => navigate('/settings')}>
-            <Settings className="mr-2 h-4 w-4" />
+            <SettingsIcon className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => logout()}>
+          <DropdownMenuItem onClick={() => signOut()}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </DropdownMenuItem>
