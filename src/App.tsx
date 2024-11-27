@@ -96,14 +96,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/login" />;
   }
 
-  return (
-    <div className="relative">
-      <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between">
-        {children}
-        <UserNav />
-      </div>
-    </div>
-  );
+  return children;
 }
 
 const AppRoutes = () => (

@@ -5,14 +5,15 @@ import Clients from "@/components/Clients";
 import Tasks from "@/components/Tasks";
 import Finances from "@/components/Finances";
 import Invoices from "@/components/Invoices";
+import { UserNav } from "@/App";
 
 const Index = () => {
   const logoUrl = localStorage.getItem('app-logo');
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-[1400px] mx-auto p-6">
-        <div className="flex items-center justify-between w-full mb-8">
+      <header className="border-b">
+        <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center">
             {logoUrl ? (
               <img 
@@ -24,8 +25,11 @@ const Index = () => {
               <h1 className="text-3xl font-bold">Web Agency CRM</h1>
             )}
           </div>
+          <UserNav />
         </div>
-        
+      </header>
+
+      <main className="max-w-[1400px] mx-auto p-6">
         <Tabs defaultValue="dashboard" className="space-y-4">
           <Card className="p-2">
             <TabsList className="w-full justify-start">
@@ -57,7 +61,7 @@ const Index = () => {
             <Invoices />
           </TabsContent>
         </Tabs>
-      </div>
+      </main>
     </div>
   );
 };
