@@ -12,10 +12,20 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addExpense } from "@/services/financeService";
 import { useToast } from "@/components/ui/use-toast";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const AddExpenseForm = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [date, setDate] = useState<Date>();
   const [expense, setExpense] = useState({
     month: new Date().toISOString().slice(0, 7),
     amount: "",
@@ -31,6 +41,7 @@ const AddExpenseForm = () => {
         description: "Expense added successfully",
       });
       setExpense({ month: new Date().toISOString().slice(0, 7), amount: "", category: "" });
+      setDate(undefined);
     },
     onError: (error: Error) => {
       toast({
@@ -50,18 +61,43 @@ const AddExpenseForm = () => {
     });
   };
 
+  const handleSelect = (date: Date | undefined) => {
+    if (date) {
+      setDate(date);
+      setExpense({
+        ...expense,
+        month: date.toISOString().slice(0, 7)
+      });
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="month">Month</Label>
-          <Input
-            id="month"
-            type="month"
-            value={expense.month}
-            onChange={(e) => setExpense({ ...expense, month: e.target.value })}
-            required
-          />
+          <Label>Month</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !date && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {date ? format(date, "MMMM yyyy") : <span>Pick a month</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={handleSelect}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         </div>
         <div className="space-y-2">
           <Label htmlFor="amount">Amount</Label>
