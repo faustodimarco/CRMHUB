@@ -57,7 +57,8 @@ const TaskCard = ({ task, onEdit, onDelete }: TaskCardProps) => {
       style={{ 
         borderLeftColor: task.priority === 'high' ? 'rgb(239, 68, 68)' : 
                         task.priority === 'medium' ? 'rgb(234, 179, 8)' : 
-                        'rgb(34, 197, 94)'
+                        'rgb(34, 197, 94)',
+        position: 'relative'
       }}
     >
       <div className="flex items-start justify-between gap-2">

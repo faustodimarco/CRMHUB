@@ -129,16 +129,15 @@ const Tasks = () => {
                         draggableId={task.id.toString()}
                         index={index}
                       >
-                        {(provided, snapshot) => (
+                        {(provided) => (
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                             style={{
                               ...provided.draggableProps.style,
-                              transform: snapshot.isDragging
-                                ? provided.draggableProps.style?.transform
-                                : 'translate(0, 0)',
+                              left: 'auto',
+                              top: 'auto'
                             }}
                           >
                             <TaskCard
