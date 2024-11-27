@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getRevenue, getExpenses, deleteExpense, deleteRevenue } from '@/services/financeService';
 import { useToast } from "@/hooks/use-toast";
+import { filterFutureEntries } from '@/utils/dateUtils';
 import {
   Dialog,
   DialogContent,
@@ -32,6 +33,7 @@ const Finances = () => {
   const { data: revenue = [] } = useQuery({
     queryKey: ['revenue'],
     queryFn: getRevenue,
+    select: (data) => filterFutureEntries(data),
     meta: {
       onError: (error: Error) => {
         toast({
@@ -111,7 +113,7 @@ const Finances = () => {
   const previousMonthExpenses = expenses[1]?.amount || 0;
   const expensesChange = getPercentageChange(lastMonthExpenses, previousMonthExpenses);
 
-  // Transform data for the chart
+  // Transform data for the chart - using filtered revenue
   const chartData = revenue.map((rev) => ({
     month: rev.month,
     revenue: rev.amount,
