@@ -1,7 +1,64 @@
 import { Card } from "@/components/ui/card";
 import { BarChart, Activity, Users, FileText } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getClients } from "@/services/clientService";
+import { getTasks } from "@/services/taskService";
+import { getInvoices } from "@/services/invoiceService";
+import { getRevenue } from "@/services/financeService";
 
 const Dashboard = () => {
+  const { data: clients = [] } = useQuery({
+    queryKey: ['clients'],
+    queryFn: getClients,
+  });
+
+  const { data: tasks = [] } = useQuery({
+    queryKey: ['tasks'],
+    queryFn: getTasks,
+  });
+
+  const { data: invoices = [] } = useQuery({
+    queryKey: ['invoices'],
+    queryFn: getInvoices,
+  });
+
+  const { data: revenue = [] } = useQuery({
+    queryKey: ['revenue'],
+    queryFn: getRevenue,
+  });
+
+  // Calculate metrics
+  const totalClients = clients.length;
+  const activeTasks = tasks.filter(task => task.status !== 'done').length;
+  const pendingInvoices = invoices.filter(invoice => invoice.status === 'pending').length;
+  
+  // Calculate monthly revenue (sum of current month's revenue)
+  const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+  const monthlyRevenue = revenue
+    .filter(rev => rev.month === currentMonth)
+    .reduce((sum, rev) => sum + Number(rev.amount), 0);
+
+  // Get urgent tasks (high priority, not done)
+  const urgentTasks = tasks
+    .filter(task => task.priority === 'high' && task.status !== 'done')
+    .slice(0, 4);
+
+  // Get recent activities from tasks and invoices
+  const recentActivities = [
+    ...tasks.map(task => ({
+      type: 'task',
+      text: `Task ${task.status === 'done' ? 'completed' : 'updated'} - ${task.title}`,
+      date: new Date(task.updated_at),
+    })),
+    ...invoices.map(invoice => ({
+      type: 'invoice',
+      text: `Invoice ${invoice.status === 'paid' ? 'paid' : 'created'} - #${invoice.id}`,
+      date: new Date(invoice.created_at),
+    })),
+  ]
+    .sort((a, b) => b.date.getTime() - a.date.getTime())
+    .slice(0, 4);
+
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -12,7 +69,7 @@ const Dashboard = () => {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Total Clients</p>
-              <h3 className="text-2xl font-bold">24</h3>
+              <h3 className="text-2xl font-bold">{totalClients}</h3>
             </div>
           </div>
         </Card>
@@ -23,8 +80,8 @@ const Dashboard = () => {
               <Activity className="w-6 h-6 text-success" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Active Projects</p>
-              <h3 className="text-2xl font-bold">12</h3>
+              <p className="text-sm text-muted-foreground">Active Tasks</p>
+              <h3 className="text-2xl font-bold">{activeTasks}</h3>
             </div>
           </div>
         </Card>
@@ -36,7 +93,7 @@ const Dashboard = () => {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Pending Invoices</p>
-              <h3 className="text-2xl font-bold">8</h3>
+              <h3 className="text-2xl font-bold">{pendingInvoices}</h3>
             </div>
           </div>
         </Card>
@@ -48,7 +105,7 @@ const Dashboard = () => {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Monthly Revenue</p>
-              <h3 className="text-2xl font-bold">$45,231</h3>
+              <h3 className="text-2xl font-bold">${monthlyRevenue.toLocaleString()}</h3>
             </div>
           </div>
         </Card>
@@ -58,32 +115,24 @@ const Dashboard = () => {
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Recent Activities</h3>
           <div className="space-y-4">
-            {[
-              "New client project started - Website Redesign",
-              "Invoice #123 paid by Client A",
-              "Task completed - Homepage Development",
-              "New task assigned - Mobile App Design",
-            ].map((activity, i) => (
+            {recentActivities.map((activity, i) => (
               <div key={i} className="flex items-center space-x-3">
-                <div className="w-2 h-2 rounded-full bg-primary" />
-                <p className="text-sm text-muted-foreground">{activity}</p>
+                <div className={`w-2 h-2 rounded-full ${
+                  activity.type === 'task' ? 'bg-primary' : 'bg-warning'
+                }`} />
+                <p className="text-sm text-muted-foreground">{activity.text}</p>
               </div>
             ))}
           </div>
         </Card>
 
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Upcoming Deadlines</h3>
+          <h3 className="text-lg font-semibold mb-4">Urgent Tasks</h3>
           <div className="space-y-4">
-            {[
-              "Website Launch - Client B (2 days)",
-              "Design Review - Project C (5 days)",
-              "Content Delivery - Blog Posts (1 week)",
-              "SEO Optimization - Client D (2 weeks)",
-            ].map((deadline, i) => (
-              <div key={i} className="flex items-center space-x-3">
+            {urgentTasks.map((task) => (
+              <div key={task.id} className="flex items-center space-x-3">
                 <div className="w-2 h-2 rounded-full bg-warning" />
-                <p className="text-sm text-muted-foreground">{deadline}</p>
+                <p className="text-sm text-muted-foreground">{task.title}</p>
               </div>
             ))}
           </div>
