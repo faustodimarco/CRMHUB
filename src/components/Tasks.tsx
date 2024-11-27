@@ -129,15 +129,12 @@ const Tasks = () => {
                         draggableId={task.id.toString()}
                         index={index}
                       >
-                        {(provided, snapshot) => (
+                        {(provided) => (
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                             style={provided.draggableProps.style}
-                            className={`${
-                              snapshot.isDragging ? 'shadow-lg' : ''
-                            }`}
                           >
                             <TaskCard
                               task={task}
