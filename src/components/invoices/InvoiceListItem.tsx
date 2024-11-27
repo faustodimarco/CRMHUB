@@ -26,7 +26,7 @@ export const InvoiceListItem = ({
 }: InvoiceListItemProps) => {
   return (
     <div className="grid grid-cols-8 gap-4 p-4 text-sm items-center rounded-lg transition-all hover:bg-muted/50 border border-transparent hover:border-border">
-      <div className="col-span-1">
+      <div className="col-span-1 w-12">
         <Checkbox
           checked={isSelected}
           onCheckedChange={onSelect}
@@ -48,7 +48,7 @@ export const InvoiceListItem = ({
           {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
         </span>
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-end pr-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8">
