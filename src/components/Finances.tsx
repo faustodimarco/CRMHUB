@@ -1,11 +1,24 @@
 import { Card } from "@/components/ui/card";
-import { BarChart, LineChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useQuery } from '@tanstack/react-query';
-import { getRevenue, getExpenses } from '@/services/financeService';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getRevenue, getExpenses, deleteExpense } from '@/services/financeService';
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import AddExpenseForm from "./finances/AddExpenseForm";
+import AddRevenueForm from "./finances/AddRevenueForm";
+import CsvUploader from "./finances/CsvUploader";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const Finances = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: revenue = [] } = useQuery({
     queryKey: ['revenue'],
@@ -34,6 +47,24 @@ const Finances = () => {
         });
         console.error('Error loading expenses:', error);
       },
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteExpense,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      toast({
+        title: "Success",
+        description: "Expense deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: "Failed to delete expense",
+        variant: "destructive",
+      });
     },
   });
 
@@ -85,6 +116,44 @@ const Finances = () => {
         </Card>
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>Add Revenue</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Revenue</DialogTitle>
+            </DialogHeader>
+            <AddRevenueForm />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>Add Expense</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Expense</DialogTitle>
+            </DialogHeader>
+            <AddExpenseForm />
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Import Revenue CSV</h3>
+          <CsvUploader type="revenue" />
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Import Expenses CSV</h3>
+          <CsvUploader type="expenses" />
+        </Card>
+      </div>
+
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Revenue vs Expenses</h3>
         <div className="h-[400px]">
@@ -124,6 +193,30 @@ const Finances = () => {
               />
             </BarChart>
           </ResponsiveContainer>
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">Expenses List</h3>
+        <div className="space-y-4">
+          {expenses.map((expense) => (
+            <div key={expense.id} className="flex items-center justify-between p-4 border rounded-lg">
+              <div>
+                <p className="font-medium">{expense.month}</p>
+                <p className="text-sm text-muted-foreground">{expense.category}</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <p className="font-medium">${expense.amount.toLocaleString()}</p>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => deleteMutation.mutate(expense.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
         </div>
       </Card>
     </div>

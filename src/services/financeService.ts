@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import Papa from 'papaparse';
 
 export interface Revenue {
   id: number;
@@ -55,4 +56,36 @@ export const addExpense = async (expense: Omit<Expense, 'id' | 'created_at'>) =>
 
   if (error) throw error;
   return data;
+};
+
+export const deleteExpense = async (id: number) => {
+  const { error } = await supabase
+    .from('expenses')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
+};
+
+export const uploadCsv = async (file: File, type: 'revenue' | 'expenses') => {
+  return new Promise((resolve, reject) => {
+    Papa.parse(file, {
+      header: true,
+      complete: async (results) => {
+        try {
+          const { data, error } = await supabase
+            .from(type)
+            .insert(results.data);
+          
+          if (error) throw error;
+          resolve(data);
+        } catch (error) {
+          reject(error);
+        }
+      },
+      error: (error) => {
+        reject(error);
+      }
+    });
+  });
 };
