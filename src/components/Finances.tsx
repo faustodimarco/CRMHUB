@@ -93,17 +93,24 @@ const Finances = () => {
   }));
 
   return (
-    <div className="flex gap-6">
-      {/* Side Menu */}
-      <div className="w-64 shrink-0">
-        <Card className="p-4 space-y-4">
-          <h3 className="text-lg font-semibold">Financial Management</h3>
-          <div className="space-y-2">
+    <div className="space-y-8">
+      <FinanceStats 
+        totalRevenue={totalRevenue}
+        totalExpenses={totalExpenses}
+        netProfit={netProfit}
+        revenueChange={revenueChange}
+        expensesChange={expensesChange}
+      />
+
+      <RevenueExpenseChart data={chartData} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="p-4">
+          <h3 className="text-lg font-semibold mb-4">Add New Entries</h3>
+          <div className="space-y-4">
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full justify-start">
-                  Add Revenue
-                </Button>
+                <Button className="w-full">Add Revenue</Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -115,9 +122,7 @@ const Finances = () => {
 
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full justify-start">
-                  Add Expense
-                </Button>
+                <Button className="w-full">Add Expense</Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -126,54 +131,47 @@ const Finances = () => {
                 <AddExpenseForm />
               </DialogContent>
             </Dialog>
-
-            <Card className="p-4">
-              <h4 className="font-medium mb-2">Import Data</h4>
-              <div className="space-y-2">
-                <CsvUploader type="revenue" />
-                <CsvUploader type="expenses" />
-              </div>
-            </Card>
           </div>
         </Card>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 space-y-8">
-        <FinanceStats 
-          totalRevenue={totalRevenue}
-          totalExpenses={totalExpenses}
-          netProfit={netProfit}
-          revenueChange={revenueChange}
-          expensesChange={expensesChange}
-        />
-
-        <RevenueExpenseChart data={chartData} />
 
         <Card className="p-4">
-          <h3 className="text-lg font-semibold mb-4">Expenses List</h3>
-          <div className="space-y-2">
-            {expenses.map((expense) => (
-              <div key={expense.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <p className="font-medium">{expense.month}</p>
-                  <p className="text-sm text-muted-foreground">{expense.category}</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <p className="font-medium">${expense.amount.toLocaleString()}</p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => deleteMutation.mutate(expense.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+          <h3 className="text-lg font-semibold mb-4">Import Data</h3>
+          <div className="space-y-4">
+            <div className="p-4 border rounded-lg">
+              <h4 className="font-medium mb-2">Import Revenue CSV</h4>
+              <CsvUploader type="revenue" />
+            </div>
+            <div className="p-4 border rounded-lg">
+              <h4 className="font-medium mb-2">Import Expenses CSV</h4>
+              <CsvUploader type="expenses" />
+            </div>
           </div>
         </Card>
       </div>
+
+      <Card className="p-4">
+        <h3 className="text-lg font-semibold mb-4">Expenses List</h3>
+        <div className="space-y-2">
+          {expenses.map((expense) => (
+            <div key={expense.id} className="flex items-center justify-between p-4 border rounded-lg">
+              <div>
+                <p className="font-medium">{expense.month}</p>
+                <p className="text-sm text-muted-foreground">{expense.category}</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <p className="font-medium">${expense.amount.toLocaleString()}</p>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => deleteMutation.mutate(expense.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 };
