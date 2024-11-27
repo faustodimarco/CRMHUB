@@ -4,7 +4,7 @@ import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Settings as SettingsIcon, Sun, Moon, Lock, Trash2 } from "lucide-react";
+import { Settings as SettingsIcon, Sun, Moon, Lock, Trash2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -46,9 +46,20 @@ const Settings = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-[800px] mx-auto space-y-6">
-        <div className="flex items-center gap-2 border-b border-border/50 pb-4">
-          <SettingsIcon className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-semibold">Settings</h1>
+        <div className="flex items-center justify-between border-b border-border/50 pb-4">
+          <div className="flex items-center gap-2">
+            <SettingsIcon className="h-6 w-6 text-primary" />
+            <h1 className="text-2xl font-semibold">Settings</h1>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Button>
         </div>
 
         <div className="grid gap-6">
