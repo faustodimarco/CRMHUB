@@ -1,19 +1,10 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { Plus } from "lucide-react";
 import { getTasks, addTask, updateTask, deleteTask, type Task } from "@/services/taskService";
-import TaskDialog from "./task/TaskDialog";
 import TaskCard from "./task/TaskCard";
+import TaskHeader from "./task/TaskHeader";
 
 const Tasks = () => {
   const [editTask, setEditTask] = useState<Task | undefined>();
@@ -53,11 +44,6 @@ const Tasks = () => {
   const handleDragEnd = async (result: any) => {
     if (!result.destination) return;
 
-    const sourceIndex = result.source.index;
-    const destinationIndex = result.destination.index;
-    const sourceColumnId = result.source.droppableId;
-    const destinationColumnId = result.destination.droppableId;
-
     const taskToMove = tasks.find((t: Task) => t.id === parseInt(result.draggableId));
     if (!taskToMove) return;
 
@@ -67,23 +53,21 @@ const Tasks = () => {
       const taskIndex = newTasks.findIndex(t => t.id === taskToMove.id);
       if (taskIndex !== -1) {
         const [removed] = newTasks.splice(taskIndex, 1);
-        removed.status = destinationColumnId;
-        removed.position = destinationIndex;
-        newTasks.splice(destinationIndex, 0, removed);
+        removed.status = result.destination.droppableId;
+        removed.position = result.destination.index;
+        newTasks.splice(result.destination.index, 0, removed);
       }
       return newTasks;
     });
 
     // Update the server
-    const updates: Partial<Task> = {
-      position: destinationIndex,
-      status: destinationColumnId,
-    };
-
     try {
-      await updateTaskMutation.mutateAsync({ id: taskToMove.id, ...updates });
+      await updateTaskMutation.mutateAsync({ 
+        id: taskToMove.id,
+        position: result.destination.index,
+        status: result.destination.droppableId,
+      });
     } catch (error) {
-      // Revert optimistic update on error
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
     }
   };
@@ -104,11 +88,6 @@ const Tasks = () => {
     setEditTask(undefined);
   };
 
-  const handleEdit = (task: Task) => {
-    setEditTask(task);
-    setIsDialogOpen(true);
-  };
-
   if (isLoading) return <div>Loading tasks...</div>;
 
   const columns = {
@@ -120,33 +99,13 @@ const Tasks = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Tasks</h2>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          setIsDialogOpen(open);
-          if (!open) setEditTask(undefined);
-        }}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setEditTask(undefined)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Task
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editTask ? "Edit" : "Add"} Task</DialogTitle>
-            </DialogHeader>
-            <TaskDialog
-              task={editTask}
-              onSubmit={handleSubmit}
-              onClose={() => {
-                setIsDialogOpen(false);
-                setEditTask(undefined);
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-      </div>
+      <TaskHeader
+        isDialogOpen={isDialogOpen}
+        setIsDialogOpen={setIsDialogOpen}
+        setEditTask={setEditTask}
+        onSubmit={handleSubmit}
+        editTask={editTask}
+      />
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -183,7 +142,10 @@ const Tasks = () => {
                           >
                             <TaskCard
                               task={task}
-                              onEdit={handleEdit}
+                              onEdit={() => {
+                                setEditTask(task);
+                                setIsDialogOpen(true);
+                              }}
                               onDelete={(id) => deleteTaskMutation.mutate(id)}
                             />
                           </div>
