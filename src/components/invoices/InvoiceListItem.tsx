@@ -25,7 +25,7 @@ export const InvoiceListItem = ({
   onSelect,
 }: InvoiceListItemProps) => {
   return (
-    <div className="grid grid-cols-8 gap-4 px-4 py-3 text-sm items-center rounded-lg transition-all hover:bg-muted/50 border border-transparent hover:border-border">
+    <div className="grid grid-cols-7 gap-4 px-4 py-3 text-sm items-center rounded-lg transition-all hover:bg-muted/50 border border-transparent hover:border-border">
       <div className="col-span-1 w-12 flex items-center">
         <Checkbox
           checked={isSelected}
