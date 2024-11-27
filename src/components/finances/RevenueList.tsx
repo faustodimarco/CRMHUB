@@ -16,8 +16,15 @@ const RevenueList = ({ revenue, onDelete }: RevenueListProps) => {
         {revenue.map((rev) => (
           <div key={rev.id} className="flex items-center justify-between p-4 border rounded-lg">
             <div>
+              <p className="font-medium">{rev.title || 'Untitled Revenue'}</p>
               <div className="flex gap-2 text-sm text-muted-foreground">
                 <span>{rev.month}</span>
+                {rev.invoice_number && (
+                  <>
+                    <span>•</span>
+                    <span>Invoice: {rev.invoice_number}</span>
+                  </>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-4">

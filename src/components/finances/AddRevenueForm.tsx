@@ -22,6 +22,8 @@ const AddRevenueForm = () => {
   const [revenue, setRevenue] = useState({
     month: new Date().toISOString().slice(0, 7),
     amount: "",
+    title: "",
+    invoice_number: "",
   });
 
   const { mutate } = useMutation({
@@ -32,7 +34,12 @@ const AddRevenueForm = () => {
         title: "Success",
         description: "Revenue added successfully",
       });
-      setRevenue({ month: new Date().toISOString().slice(0, 7), amount: "" });
+      setRevenue({ 
+        month: new Date().toISOString().slice(0, 7), 
+        amount: "", 
+        title: "",
+        invoice_number: "" 
+      });
       setDate(undefined);
     },
     onError: (error: Error) => {
@@ -49,6 +56,8 @@ const AddRevenueForm = () => {
     mutate({
       month: revenue.month,
       amount: parseFloat(revenue.amount),
+      title: revenue.title,
+      invoice_number: revenue.invoice_number || null,
     });
   };
 
@@ -91,6 +100,15 @@ const AddRevenueForm = () => {
           </Popover>
         </div>
         <div className="space-y-2">
+          <Label htmlFor="title">Title</Label>
+          <Input
+            id="title"
+            value={revenue.title}
+            onChange={(e) => setRevenue({ ...revenue, title: e.target.value })}
+            placeholder="Revenue title"
+          />
+        </div>
+        <div className="space-y-2">
           <Label htmlFor="amount">Amount</Label>
           <Input
             id="amount"
@@ -100,6 +118,15 @@ const AddRevenueForm = () => {
             onChange={(e) => setRevenue({ ...revenue, amount: e.target.value })}
             required
             className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="invoice_number">Invoice Number (Optional)</Label>
+          <Input
+            id="invoice_number"
+            value={revenue.invoice_number}
+            onChange={(e) => setRevenue({ ...revenue, invoice_number: e.target.value })}
+            placeholder="e.g., INV-001"
           />
         </div>
       </div>
