@@ -14,13 +14,21 @@ interface ExpensesListProps {
 
 const ExpensesList = ({ expenses, onDelete }: ExpensesListProps) => {
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  
+  // Filter out future expenses
+  const currentDate = new Date();
+  const currentMonth = currentDate.toISOString().slice(0, 7);
+  
+  const filteredExpenses = expenses.filter(expense => {
+    return expense.month <= currentMonth;
+  });
 
   return (
     <>
       <Card className="p-4">
         <h3 className="text-lg font-semibold mb-4">Expenses List</h3>
         <div className="space-y-2">
-          {expenses.map((expense) => (
+          {filteredExpenses.map((expense) => (
             <div key={expense.id} className="flex items-center justify-between p-4 border rounded-lg">
               <div>
                 <p className="font-medium">{expense.title}</p>
