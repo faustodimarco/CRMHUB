@@ -7,6 +7,7 @@ create table revenue (
 
 create table expenses (
   id bigint primary key generated always as identity,
+  title text not null,
   month text not null,
   amount decimal(12,2) not null,
   category text not null,
@@ -28,3 +29,6 @@ create policy "Enable read access for authenticated users" on expenses
 
 create policy "Enable insert access for authenticated users" on expenses
   for insert with check (auth.role() = 'authenticated');
+
+create policy "Enable delete access for authenticated users" on expenses
+  for delete using (auth.role() = 'authenticated');

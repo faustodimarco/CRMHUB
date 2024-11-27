@@ -27,6 +27,7 @@ const AddExpenseForm = () => {
   const queryClient = useQueryClient();
   const [date, setDate] = useState<Date>();
   const [expense, setExpense] = useState({
+    title: "",
     month: new Date().toISOString().slice(0, 7),
     amount: "",
     category: "",
@@ -40,7 +41,7 @@ const AddExpenseForm = () => {
         title: "Success",
         description: "Expense added successfully",
       });
-      setExpense({ month: new Date().toISOString().slice(0, 7), amount: "", category: "" });
+      setExpense({ title: "", month: new Date().toISOString().slice(0, 7), amount: "", category: "" });
       setDate(undefined);
     },
     onError: (error: Error) => {
@@ -55,6 +56,7 @@ const AddExpenseForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     mutate({
+      title: expense.title,
       month: expense.month,
       amount: parseFloat(expense.amount),
       category: expense.category,
@@ -73,7 +75,16 @@ const AddExpenseForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="title">Title</Label>
+          <Input
+            id="title"
+            value={expense.title}
+            onChange={(e) => setExpense({ ...expense, title: e.target.value })}
+            required
+          />
+        </div>
         <div className="space-y-2">
           <Label>Month</Label>
           <Popover>

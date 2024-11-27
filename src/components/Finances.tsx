@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getRevenue, getExpenses, deleteExpense } from '@/services/financeService';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Trash2, MoreVertical } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +22,7 @@ import AddRevenueForm from "./finances/AddRevenueForm";
 import CsvUploader from "./finances/CsvUploader";
 import FinanceStats from "./finances/FinanceStats";
 import RevenueExpenseChart from "./finances/RevenueExpenseChart";
-import { Card } from './ui/card';
+import ExpensesList from "./finances/ExpensesList";
 
 const Finances = () => {
   const { toast } = useToast();
@@ -181,29 +181,7 @@ const Finances = () => {
 
       <RevenueExpenseChart data={chartData} />
 
-      <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Expenses List</h3>
-        <div className="space-y-2">
-          {expenses.map((expense) => (
-            <div key={expense.id} className="flex items-center justify-between p-4 border rounded-lg">
-              <div>
-                <p className="font-medium">{expense.month}</p>
-                <p className="text-sm text-muted-foreground">{expense.category}</p>
-              </div>
-              <div className="flex items-center gap-4">
-                <p className="font-medium">${expense.amount.toLocaleString()}</p>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => deleteMutation.mutate(expense.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+      <ExpensesList expenses={expenses} onDelete={deleteMutation.mutate} />
     </div>
   );
 };

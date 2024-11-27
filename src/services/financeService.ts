@@ -10,6 +10,7 @@ export interface Revenue {
 
 export interface Expense {
   id: number;
+  title: string;
   month: string;
   amount: number;
   category: string;
