@@ -30,7 +30,7 @@ const TaskCard = ({ task, onEdit, onDelete }: TaskCardProps) => {
   return (
     <Card className="group relative p-4 space-y-3 hover:shadow-md transition-all duration-200">
       <div className="flex items-start justify-between">
-        <h4 className="font-medium text-lg">{task.title}</h4>
+        <h4 className="font-medium text-base">{task.title}</h4>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8">
