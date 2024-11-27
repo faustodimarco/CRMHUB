@@ -5,6 +5,8 @@ export interface Revenue {
   id: number;
   month: string;
   amount: number;
+  title?: string;
+  invoice_number?: string;
   created_at: string;
 }
 
