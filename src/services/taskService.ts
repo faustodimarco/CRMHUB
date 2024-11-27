@@ -72,3 +72,12 @@ export const updateTaskPosition = async (id: number, newPosition: number) => {
   
   if (error) throw error;
 };
+
+export const deleteCompletedTasks = async () => {
+  const { error } = await supabase
+    .from('tasks')
+    .delete()
+    .eq('status', 'done');
+  
+  if (error) throw error;
+};
