@@ -23,7 +23,7 @@ import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
-function UserNav() {
+export function UserNav() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   
