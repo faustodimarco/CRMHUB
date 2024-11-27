@@ -8,6 +8,8 @@ export interface Revenue {
   title?: string;
   invoice_number?: string;
   created_at: string;
+  is_recurring: boolean;
+  recurring_end_date?: string;
 }
 
 export interface Expense {
@@ -17,6 +19,8 @@ export interface Expense {
   amount: number;
   category: string;
   created_at: string;
+  is_recurring: boolean;
+  recurring_end_date?: string;
 }
 
 export const getRevenue = async () => {

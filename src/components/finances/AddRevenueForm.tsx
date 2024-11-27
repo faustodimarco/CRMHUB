@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addRevenue } from "@/services/financeService";
 import { useToast } from "@/components/ui/use-toast";
@@ -19,11 +20,14 @@ const AddRevenueForm = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [date, setDate] = useState<Date>();
+  const [recurringEndDate, setRecurringEndDate] = useState<Date>();
   const [revenue, setRevenue] = useState({
     month: new Date().toISOString().slice(0, 7),
     amount: "",
     title: "",
     invoice_number: "",
+    is_recurring: false,
+    recurring_end_date: null as string | null,
   });
 
   const { mutate } = useMutation({
@@ -34,13 +38,16 @@ const AddRevenueForm = () => {
         title: "Success",
         description: "Revenue added successfully",
       });
-      setRevenue({ 
-        month: new Date().toISOString().slice(0, 7), 
-        amount: "", 
+      setRevenue({
+        month: new Date().toISOString().slice(0, 7),
+        amount: "",
         title: "",
-        invoice_number: "" 
+        invoice_number: "",
+        is_recurring: false,
+        recurring_end_date: null,
       });
       setDate(undefined);
+      setRecurringEndDate(undefined);
     },
     onError: (error: Error) => {
       toast({
@@ -58,6 +65,8 @@ const AddRevenueForm = () => {
       amount: parseFloat(revenue.amount),
       title: revenue.title,
       invoice_number: revenue.invoice_number || null,
+      is_recurring: revenue.is_recurring,
+      recurring_end_date: revenue.recurring_end_date,
     });
   };
 
@@ -67,6 +76,16 @@ const AddRevenueForm = () => {
       setRevenue({
         ...revenue,
         month: date.toISOString().slice(0, 7)
+      });
+    }
+  };
+
+  const handleRecurringEndDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setRecurringEndDate(date);
+      setRevenue({
+        ...revenue,
+        recurring_end_date: date.toISOString().slice(0, 10)
       });
     }
   };
@@ -130,6 +149,47 @@ const AddRevenueForm = () => {
           />
         </div>
       </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="recurring"
+          checked={revenue.is_recurring}
+          onCheckedChange={(checked) => 
+            setRevenue({ ...revenue, is_recurring: checked as boolean })
+          }
+        />
+        <Label htmlFor="recurring">Recurring revenue</Label>
+      </div>
+
+      {revenue.is_recurring && (
+        <div className="space-y-2">
+          <Label>End Date (Optional)</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !recurringEndDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {recurringEndDate ? format(recurringEndDate, "PP") : <span>Pick an end date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={recurringEndDate}
+                onSelect={handleRecurringEndDateSelect}
+                initialFocus
+                disabled={(date) => date <= new Date()}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
+
       <Button type="submit">Add Revenue</Button>
     </form>
   );

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -26,11 +27,14 @@ const AddExpenseForm = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [date, setDate] = useState<Date>();
+  const [recurringEndDate, setRecurringEndDate] = useState<Date>();
   const [expense, setExpense] = useState({
     title: "",
     month: new Date().toISOString().slice(0, 7),
     amount: "",
     category: "",
+    is_recurring: false,
+    recurring_end_date: null as string | null,
   });
 
   const { mutate } = useMutation({
@@ -41,8 +45,16 @@ const AddExpenseForm = () => {
         title: "Success",
         description: "Expense added successfully",
       });
-      setExpense({ title: "", month: new Date().toISOString().slice(0, 7), amount: "", category: "" });
+      setExpense({
+        title: "",
+        month: new Date().toISOString().slice(0, 7),
+        amount: "",
+        category: "",
+        is_recurring: false,
+        recurring_end_date: null,
+      });
       setDate(undefined);
+      setRecurringEndDate(undefined);
     },
     onError: (error: Error) => {
       toast({
@@ -60,6 +72,8 @@ const AddExpenseForm = () => {
       month: expense.month,
       amount: parseFloat(expense.amount),
       category: expense.category,
+      is_recurring: expense.is_recurring,
+      recurring_end_date: expense.recurring_end_date,
     });
   };
 
@@ -69,6 +83,16 @@ const AddExpenseForm = () => {
       setExpense({
         ...expense,
         month: date.toISOString().slice(0, 7)
+      });
+    }
+  };
+
+  const handleRecurringEndDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setRecurringEndDate(date);
+      setExpense({
+        ...expense,
+        recurring_end_date: date.toISOString().slice(0, 10)
       });
     }
   };
@@ -141,6 +165,47 @@ const AddExpenseForm = () => {
           </Select>
         </div>
       </div>
+      
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="recurring"
+          checked={expense.is_recurring}
+          onCheckedChange={(checked) => 
+            setExpense({ ...expense, is_recurring: checked as boolean })
+          }
+        />
+        <Label htmlFor="recurring">Recurring expense</Label>
+      </div>
+
+      {expense.is_recurring && (
+        <div className="space-y-2">
+          <Label>End Date (Optional)</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !recurringEndDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {recurringEndDate ? format(recurringEndDate, "PP") : <span>Pick an end date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={recurringEndDate}
+                onSelect={handleRecurringEndDateSelect}
+                initialFocus
+                disabled={(date) => date <= new Date()}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
+
       <Button type="submit">Add Expense</Button>
     </form>
   );
