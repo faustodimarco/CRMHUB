@@ -10,26 +10,30 @@ const Finances = () => {
   const { data: revenue = [] } = useQuery({
     queryKey: ['revenue'],
     queryFn: getRevenue,
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to load revenue data",
-        variant: "destructive",
-      });
-      console.error('Error loading revenue:', error);
+    meta: {
+      onError: (error: Error) => {
+        toast({
+          title: "Error",
+          description: "Failed to load revenue data",
+          variant: "destructive",
+        });
+        console.error('Error loading revenue:', error);
+      },
     },
   });
 
   const { data: expenses = [] } = useQuery({
     queryKey: ['expenses'],
     queryFn: getExpenses,
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to load expenses data",
-        variant: "destructive",
-      });
-      console.error('Error loading expenses:', error);
+    meta: {
+      onError: (error: Error) => {
+        toast({
+          title: "Error",
+          description: "Failed to load expenses data",
+          variant: "destructive",
+        });
+        console.error('Error loading expenses:', error);
+      },
     },
   });
 
