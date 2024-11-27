@@ -37,7 +37,7 @@ export const InvoiceListItem = ({
       <div className="text-muted-foreground truncate">{new Date(invoice.issue_date).toLocaleDateString()}</div>
       <div className="text-muted-foreground truncate">{new Date(invoice.due_date).toLocaleDateString()}</div>
       <div className="font-medium truncate">${invoice.amount.toLocaleString()}</div>
-      <div className="flex items-center">
+      <div className="flex items-center gap-2">
         <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
           invoice.status === 'paid'
             ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400'
@@ -47,8 +47,6 @@ export const InvoiceListItem = ({
         }`}>
           {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
         </span>
-      </div>
-      <div className="flex justify-end pr-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8">
