@@ -11,6 +11,8 @@ import RevenueList from "./finances/RevenueList";
 const Finances = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+  const currentYear = new Date().getFullYear().toString();
 
   const { data: revenue = [] } = useQuery({
     queryKey: ['revenue'],
@@ -77,38 +79,65 @@ const Finances = () => {
     },
   });
 
-  // Calculate totals and changes
-  const totalRevenue = revenue.reduce((sum, item) => sum + item.amount, 0);
-  const totalExpenses = expenses.reduce((sum, item) => sum + item.amount, 0);
-  const netProfit = totalRevenue - totalExpenses;
+  // Calculate current month totals
+  const monthlyRevenue = revenue
+    .filter(rev => rev.month === currentMonth)
+    .reduce((sum, item) => sum + item.amount, 0);
 
-  const getPercentageChange = (current: number, previous: number) => {
-    if (previous === 0) return 0;
-    return ((current - previous) / previous) * 100;
-  };
+  const monthlyExpenses = expenses
+    .filter(exp => exp.month === currentMonth)
+    .reduce((sum, item) => sum + item.amount, 0);
 
-  const lastMonthRevenue = revenue[0]?.amount || 0;
-  const previousMonthRevenue = revenue[1]?.amount || 0;
-  const revenueChange = getPercentageChange(lastMonthRevenue, previousMonthRevenue);
+  // Calculate yearly revenue (sum of all past months including current)
+  const yearlyRevenue = revenue
+    .filter(rev => rev.month.startsWith(currentYear) && rev.month <= currentMonth)
+    .reduce((sum, item) => sum + item.amount, 0);
 
-  const lastMonthExpenses = expenses[0]?.amount || 0;
-  const previousMonthExpenses = expenses[1]?.amount || 0;
-  const expensesChange = getPercentageChange(lastMonthExpenses, previousMonthExpenses);
+  const netProfit = monthlyRevenue - monthlyExpenses;
 
-  // Transform data for the chart - using filtered revenue
-  const chartData = revenue.map((rev) => ({
-    month: rev.month,
-    revenue: rev.amount,
-    expenses: expenses.find(exp => exp.month === rev.month)?.amount || 0
-  }));
+  // Calculate percentage changes
+  const lastMonthRevenue = revenue
+    .filter(rev => rev.month === currentMonth)
+    .reduce((sum, item) => sum + item.amount, 0);
+  const previousMonthRevenue = revenue
+    .filter(rev => {
+      const prevMonth = new Date();
+      prevMonth.setMonth(prevMonth.getMonth() - 1);
+      return rev.month === prevMonth.toISOString().slice(0, 7);
+    })
+    .reduce((sum, item) => sum + item.amount, 0);
+
+  const revenueChange = previousMonthRevenue === 0 ? 0 : 
+    ((lastMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100;
+
+  const lastMonthExpenses = monthlyExpenses;
+  const previousMonthExpenses = expenses
+    .filter(exp => {
+      const prevMonth = new Date();
+      prevMonth.setMonth(prevMonth.getMonth() - 1);
+      return exp.month === prevMonth.toISOString().slice(0, 7);
+    })
+    .reduce((sum, item) => sum + item.amount, 0);
+
+  const expensesChange = previousMonthExpenses === 0 ? 0 :
+    ((lastMonthExpenses - previousMonthExpenses) / previousMonthExpenses) * 100;
+
+  // Transform data for the chart
+  const chartData = revenue
+    .filter(rev => rev.month <= currentMonth)
+    .map((rev) => ({
+      month: rev.month,
+      revenue: rev.amount,
+      expenses: expenses.find(exp => exp.month === rev.month)?.amount || 0
+    }));
 
   return (
     <div className="space-y-8">
       <FinanceHeader />
 
       <FinanceStats 
-        totalRevenue={totalRevenue}
-        totalExpenses={totalExpenses}
+        totalRevenue={yearlyRevenue}
+        totalExpenses={monthlyExpenses}
         netProfit={netProfit}
         revenueChange={revenueChange}
         expensesChange={expensesChange}

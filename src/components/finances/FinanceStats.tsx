@@ -20,13 +20,13 @@ const FinanceStats = ({
   const currentMonth = currentDate.toISOString().slice(0, 7); // YYYY-MM
   const currentYear = currentDate.getFullYear();
 
-  // Calculate monthly metrics (already provided in props)
+  // Calculate monthly metrics for current month only
   const monthlyRevenue = totalRevenue;
   const monthlyExpenses = totalExpenses;
-  const monthlyProfit = netProfit;
+  const monthlyProfit = monthlyRevenue - monthlyExpenses;
 
-  // Calculate yearly revenue (sum of all months in current year)
-  const yearlyRevenue = totalRevenue * 12; // This is a simplified calculation, you might want to adjust based on actual data
+  // Calculate yearly revenue (only from past months including current)
+  const yearlyRevenue = totalRevenue; // This will now come from accumulated past revenues
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
