@@ -72,6 +72,7 @@ const AddExpenseForm = () => {
             value={expense.amount}
             onChange={(e) => setExpense({ ...expense, amount: e.target.value })}
             required
+            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
         </div>
         <div className="space-y-2">

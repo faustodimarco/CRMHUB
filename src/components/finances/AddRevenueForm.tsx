@@ -99,6 +99,7 @@ const AddRevenueForm = () => {
             value={revenue.amount}
             onChange={(e) => setRevenue({ ...revenue, amount: e.target.value })}
             required
+            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
         </div>
       </div>
