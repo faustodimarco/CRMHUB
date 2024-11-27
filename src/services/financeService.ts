@@ -61,6 +61,30 @@ export const addExpense = async (expense: Omit<Expense, 'id' | 'created_at'>) =>
   return data;
 };
 
+export const editRevenue = async (id: number, revenue: Partial<Omit<Revenue, 'id' | 'created_at'>>) => {
+  const { data, error } = await supabase
+    .from('revenue')
+    .update(revenue)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const editExpense = async (id: number, expense: Partial<Omit<Expense, 'id' | 'created_at'>>) => {
+  const { data, error } = await supabase
+    .from('expenses')
+    .update(expense)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
 export const deleteExpense = async (id: number) => {
   const { error } = await supabase
     .from('expenses')
