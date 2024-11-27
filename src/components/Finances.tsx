@@ -2,25 +2,20 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getRevenue, getExpenses, deleteExpense } from '@/services/financeService';
 import { useToast } from "@/components/ui/use-toast";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import AddExpenseForm from "./finances/AddExpenseForm";
 import AddRevenueForm from "./finances/AddRevenueForm";
 import CsvUploader from "./finances/CsvUploader";
 import FinanceStats from "./finances/FinanceStats";
 import RevenueExpenseChart from "./finances/RevenueExpenseChart";
+import { Card } from './ui/card';
 
 const Finances = () => {
   const { toast } = useToast();
@@ -107,84 +102,76 @@ const Finances = () => {
         expensesChange={expensesChange}
       />
 
-      <Accordion type="single" collapsible className="w-full space-y-4">
-        <AccordionItem value="manage-finances" className="border rounded-lg">
-          <AccordionTrigger className="px-4">Manage Finances</AccordionTrigger>
-          <AccordionContent className="px-4 pt-2 pb-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button>Add Revenue</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add Revenue</DialogTitle>
-                  </DialogHeader>
-                  <AddRevenueForm />
-                </DialogContent>
-              </Dialog>
+      <RevenueExpenseChart data={chartData} />
 
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button>Add Expense</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add Expense</DialogTitle>
-                  </DialogHeader>
-                  <AddExpenseForm />
-                </DialogContent>
-              </Dialog>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="p-4">
+          <h3 className="text-lg font-semibold mb-4">Add New Entries</h3>
+          <div className="space-y-4">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="w-full">Add Revenue</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Revenue</DialogTitle>
+                </DialogHeader>
+                <AddRevenueForm />
+              </DialogContent>
+            </Dialog>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="w-full">Add Expense</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Expense</DialogTitle>
+                </DialogHeader>
+                <AddExpenseForm />
+              </DialogContent>
+            </Dialog>
+          </div>
+        </Card>
+
+        <Card className="p-4">
+          <h3 className="text-lg font-semibold mb-4">Import Data</h3>
+          <div className="space-y-4">
+            <div className="p-4 border rounded-lg">
+              <h4 className="font-medium mb-2">Import Revenue CSV</h4>
+              <CsvUploader type="revenue" />
             </div>
-          </AccordionContent>
-        </AccordionItem>
+            <div className="p-4 border rounded-lg">
+              <h4 className="font-medium mb-2">Import Expenses CSV</h4>
+              <CsvUploader type="expenses" />
+            </div>
+          </div>
+        </Card>
+      </div>
 
-        <AccordionItem value="import-data" className="border rounded-lg">
-          <AccordionTrigger className="px-4">Import Data</AccordionTrigger>
-          <AccordionContent className="px-4 pt-2 pb-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 border rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">Import Revenue CSV</h3>
-                <CsvUploader type="revenue" />
+      <Card className="p-4">
+        <h3 className="text-lg font-semibold mb-4">Expenses List</h3>
+        <div className="space-y-2">
+          {expenses.map((expense) => (
+            <div key={expense.id} className="flex items-center justify-between p-4 border rounded-lg">
+              <div>
+                <p className="font-medium">{expense.month}</p>
+                <p className="text-sm text-muted-foreground">{expense.category}</p>
               </div>
-
-              <div className="p-4 border rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">Import Expenses CSV</h3>
-                <CsvUploader type="expenses" />
+              <div className="flex items-center gap-4">
+                <p className="font-medium">${expense.amount.toLocaleString()}</p>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => deleteMutation.mutate(expense.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             </div>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="view-data" className="border rounded-lg">
-          <AccordionTrigger className="px-4">View Data</AccordionTrigger>
-          <AccordionContent className="px-4 pt-2 pb-4 space-y-4">
-            <RevenueExpenseChart data={chartData} />
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Expenses List</h3>
-              {expenses.map((expense) => (
-                <div key={expense.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <p className="font-medium">{expense.month}</p>
-                    <p className="text-sm text-muted-foreground">{expense.category}</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <p className="font-medium">${expense.amount.toLocaleString()}</p>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deleteMutation.mutate(expense.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 };

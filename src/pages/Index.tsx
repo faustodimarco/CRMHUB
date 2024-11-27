@@ -8,39 +8,47 @@ import Invoices from "@/components/Invoices";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-[1400px] mx-auto">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-[1400px] mx-auto p-6">
         <h1 className="text-3xl font-bold mb-8">Web Agency CRM</h1>
         
-        <Tabs defaultValue="dashboard" className="space-y-4">
-          <TabsList className="bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="clients">Clients</TabsTrigger>
-            <TabsTrigger value="tasks">Tasks</TabsTrigger>
-            <TabsTrigger value="finances">Finances</TabsTrigger>
-            <TabsTrigger value="invoices">Invoices</TabsTrigger>
-          </TabsList>
+        <div className="flex gap-6">
+          <div className="w-64 shrink-0">
+            <Card className="p-4">
+              <TabsList className="flex flex-col h-auto bg-transparent space-y-2">
+                <TabsTrigger value="dashboard" className="w-full justify-start">Dashboard</TabsTrigger>
+                <TabsTrigger value="clients" className="w-full justify-start">Clients</TabsTrigger>
+                <TabsTrigger value="tasks" className="w-full justify-start">Tasks</TabsTrigger>
+                <TabsTrigger value="finances" className="w-full justify-start">Finances</TabsTrigger>
+                <TabsTrigger value="invoices" className="w-full justify-start">Invoices</TabsTrigger>
+              </TabsList>
+            </Card>
+          </div>
 
-          <TabsContent value="dashboard" className="space-y-4">
-            <Dashboard />
-          </TabsContent>
+          <div className="flex-1">
+            <Tabs defaultValue="dashboard" className="space-y-4">
+              <TabsContent value="dashboard">
+                <Dashboard />
+              </TabsContent>
 
-          <TabsContent value="clients" className="space-y-4">
-            <Clients />
-          </TabsContent>
+              <TabsContent value="clients">
+                <Clients />
+              </TabsContent>
 
-          <TabsContent value="tasks" className="space-y-4">
-            <Tasks />
-          </TabsContent>
+              <TabsContent value="tasks">
+                <Tasks />
+              </TabsContent>
 
-          <TabsContent value="finances" className="space-y-4">
-            <Finances />
-          </TabsContent>
+              <TabsContent value="finances">
+                <Finances />
+              </TabsContent>
 
-          <TabsContent value="invoices" className="space-y-4">
-            <Invoices />
-          </TabsContent>
-        </Tabs>
+              <TabsContent value="invoices">
+                <Invoices />
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
       </div>
     </div>
   );
