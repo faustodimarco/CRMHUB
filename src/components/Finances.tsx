@@ -56,7 +56,7 @@ const Finances = () => {
     },
   });
 
-  const deleteMutation = useMutation({
+  const { mutate: deleteExpenseMutation } = useMutation({
     mutationFn: deleteExpense,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
@@ -181,7 +181,7 @@ const Finances = () => {
 
       <RevenueExpenseChart data={chartData} />
 
-      <ExpensesList expenses={expenses} onDelete={deleteMutation.mutate} />
+      <ExpensesList expenses={expenses} onDelete={deleteExpenseMutation} />
     </div>
   );
 };
