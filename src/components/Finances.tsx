@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getRevenue, getExpenses, deleteExpense } from '@/services/financeService';
+import { getRevenue, getExpenses, deleteExpense, deleteRevenue } from '@/services/financeService';
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -23,6 +23,7 @@ import CsvUploader from "./finances/CsvUploader";
 import FinanceStats from "./finances/FinanceStats";
 import RevenueExpenseChart from "./finances/RevenueExpenseChart";
 import ExpensesList from "./finances/ExpensesList";
+import RevenueList from "./finances/RevenueList";
 
 const Finances = () => {
   const { toast } = useToast();
@@ -69,6 +70,24 @@ const Finances = () => {
       toast({
         title: "Error",
         description: "Failed to delete expense",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const { mutate: deleteRevenueMutation } = useMutation({
+    mutationFn: deleteRevenue,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['revenue'] });
+      toast({
+        title: "Success",
+        description: "Revenue deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: "Failed to delete revenue",
         variant: "destructive",
       });
     },
@@ -181,7 +200,10 @@ const Finances = () => {
 
       <RevenueExpenseChart data={chartData} />
 
-      <ExpensesList expenses={expenses} onDelete={deleteExpenseMutation} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <RevenueList revenue={revenue} onDelete={deleteRevenueMutation} />
+        <ExpensesList expenses={expenses} onDelete={deleteExpenseMutation} />
+      </div>
     </div>
   );
 };

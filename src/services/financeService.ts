@@ -71,6 +71,18 @@ export const deleteExpense = async (id: number) => {
   }
 };
 
+export const deleteRevenue = async (id: number) => {
+  const { error } = await supabase
+    .from('revenue')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting revenue:', error);
+    throw error;
+  }
+};
+
 export const uploadCsv = async (file: File, type: 'revenue' | 'expenses') => {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
