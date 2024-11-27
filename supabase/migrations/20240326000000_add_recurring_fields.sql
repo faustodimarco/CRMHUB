@@ -1,10 +1,24 @@
--- Add recurring fields to revenue table
-alter table revenue add column is_recurring boolean default false;
-alter table revenue add column recurring_end_date date;
+-- Add recurring fields to revenue table if they don't exist
+do $$ 
+begin
+    if not exists (select 1 from information_schema.columns where table_name = 'revenue' and column_name = 'is_recurring') then
+        alter table revenue add column is_recurring boolean default false;
+    end if;
+    if not exists (select 1 from information_schema.columns where table_name = 'revenue' and column_name = 'recurring_end_date') then
+        alter table revenue add column recurring_end_date date;
+    end if;
+end $$;
 
--- Add recurring fields to expenses table
-alter table expenses add column is_recurring boolean default false;
-alter table expenses add column recurring_end_date date;
+-- Add recurring fields to expenses table if they don't exist
+do $$ 
+begin
+    if not exists (select 1 from information_schema.columns where table_name = 'expenses' and column_name = 'is_recurring') then
+        alter table expenses add column is_recurring boolean default false;
+    end if;
+    if not exists (select 1 from information_schema.columns where table_name = 'expenses' and column_name = 'recurring_end_date') then
+        alter table expenses add column recurring_end_date date;
+    end if;
+end $$;
 
 -- Create function to handle recurring entries
 create or replace function handle_recurring_entries()
@@ -13,18 +27,12 @@ declare
   current_month date;
   end_date date;
 begin
-  -- Only proceed if is_recurring is true
   if NEW.is_recurring = true then
-    -- Get the end date, default to 1 year if not specified
     end_date := coalesce(NEW.recurring_end_date, (date_trunc('month', NEW.created_at) + interval '1 year')::date);
-    
-    -- Get current month
     current_month := date_trunc('month', current_date);
     
-    -- Only create entry if we haven't reached the end date
     if current_month <= end_date then
       if TG_TABLE_NAME = 'revenue' then
-        -- Check if an entry already exists for this month
         if not exists (
           select 1 
           from revenue 
@@ -42,13 +50,12 @@ begin
             to_char(current_month, 'YYYY-MM'),
             NEW.amount,
             NEW.title || ' (Recurring)',
-            null, -- Don't copy invoice number for recurring entries
-            false, -- Don't make the copies recurring
+            null,
+            false,
             null
           );
         end if;
-      else -- expenses
-        -- Check if an entry already exists for this month
+      else
         if not exists (
           select 1 
           from expenses 
@@ -67,7 +74,7 @@ begin
             to_char(current_month, 'YYYY-MM'),
             NEW.amount,
             NEW.category,
-            false, -- Don't make the copies recurring
+            false,
             null
           );
         end if;
@@ -80,6 +87,9 @@ end;
 $$ language plpgsql;
 
 -- Create triggers for both tables
+drop trigger if exists handle_revenue_recurring on revenue;
+drop trigger if exists handle_expenses_recurring on expenses;
+
 create trigger handle_revenue_recurring
   after insert or update of is_recurring, recurring_end_date on revenue
   for each row
@@ -98,7 +108,6 @@ declare
 begin
   current_month := date_trunc('month', current_date);
   
-  -- Process recurring revenue
   insert into revenue (month, amount, title, is_recurring, recurring_end_date)
   select 
     to_char(current_month, 'YYYY-MM'),
@@ -116,7 +125,6 @@ begin
     and r2.title = revenue.title || ' (Recurring)'
   );
   
-  -- Process recurring expenses
   insert into expenses (month, amount, title, category, is_recurring, recurring_end_date)
   select 
     to_char(current_month, 'YYYY-MM'),
@@ -140,7 +148,7 @@ $$ language plpgsql;
 -- Create a cron job to run the recurring entries function on the first of each month
 select cron.schedule(
   'process-recurring-entries',
-  '0 0 1 * *', -- Run at midnight on the first day of each month
+  '0 0 1 * *',
   $$
   select process_monthly_recurring_entries();
   $$
