@@ -12,15 +12,17 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-[1400px] mx-auto p-6">
-        {logoUrl ? (
-          <img 
-            src={logoUrl} 
-            alt="Web Agency CRM" 
-            className="h-12 mb-8 object-contain"
-          />
-        ) : (
-          <h1 className="text-3xl font-bold mb-8">Web Agency CRM</h1>
-        )}
+        <div className="flex items-center justify-between mb-8">
+          {logoUrl ? (
+            <img 
+              src={logoUrl} 
+              alt="Web Agency CRM" 
+              className="h-10 object-contain"
+            />
+          ) : (
+            <h1 className="text-3xl font-bold">Web Agency CRM</h1>
+          )}
+        </div>
         
         <Tabs defaultValue="dashboard" className="space-y-4">
           <Card className="p-2">
