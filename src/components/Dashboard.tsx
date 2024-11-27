@@ -100,8 +100,8 @@ const Dashboard = () => {
 
         <Card className="p-6">
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-success/10 rounded-full">
-              <Activity className="w-6 h-6 text-success" />
+            <div className="p-3 bg-primary/10 rounded-full">
+              <Activity className="w-6 h-6 text-primary" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Active Tasks</p>
@@ -112,8 +112,8 @@ const Dashboard = () => {
 
         <Card className="p-6">
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-warning/10 rounded-full">
-              <FileText className="w-6 h-6 text-warning" />
+            <div className="p-3 bg-primary/10 rounded-full">
+              <FileText className="w-6 h-6 text-primary" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Pending Invoices</p>
@@ -124,8 +124,8 @@ const Dashboard = () => {
 
         <Card className="p-6">
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-accent/10 rounded-full">
-              <BarChart className="w-6 h-6 text-accent" />
+            <div className="p-3 bg-primary/10 rounded-full">
+              <BarChart className="w-6 h-6 text-primary" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Monthly Revenue</p>
