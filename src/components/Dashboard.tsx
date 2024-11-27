@@ -154,8 +154,8 @@ const Dashboard = () => {
             {urgentTasks.map((task) => (
               <div key={task.id} className="flex items-center space-x-3">
                 <div className="relative">
-                  <div className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
-                  <div className="absolute -top-0.5 -left-0.5 w-3 h-3 rounded-full bg-destructive/30 animate-ping" />
+                  <div className="w-2 h-2 rounded-full bg-[hsl(0_84.2%_60.2%)] animate-pulse" />
+                  <div className="absolute -top-0.5 -left-0.5 w-3 h-3 rounded-full bg-[hsl(0_84.2%_60.2%)]/30 animate-ping" />
                 </div>
                 <p className="text-sm text-muted-foreground">{task.title}</p>
               </div>
