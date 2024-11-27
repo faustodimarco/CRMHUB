@@ -1,7 +1,7 @@
 import { Revenue } from "@/services/financeService";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Repeat } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import EditRevenueForm from "./EditRevenueForm";
@@ -22,7 +22,15 @@ const RevenueList = ({ revenue, onDelete }: RevenueListProps) => {
           {revenue.map((rev) => (
             <div key={rev.id} className="flex items-center justify-between p-4 border rounded-lg">
               <div>
-                <p className="font-medium">{rev.title || 'Untitled Revenue'}</p>
+                <div className="flex items-center gap-2">
+                  <p className="font-medium">{rev.title || 'Untitled Revenue'}</p>
+                  {rev.is_recurring && (
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                      <Repeat className="h-3 w-3" />
+                      <span>Recurring</span>
+                    </div>
+                  )}
+                </div>
                 <div className="flex gap-2 text-sm text-muted-foreground">
                   <span>{rev.month}</span>
                   {rev.invoice_number && (

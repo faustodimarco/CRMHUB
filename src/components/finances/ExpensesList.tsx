@@ -1,7 +1,7 @@
 import { Expense } from "@/services/financeService";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Repeat } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import EditExpenseForm from "./EditExpenseForm";
@@ -31,7 +31,15 @@ const ExpensesList = ({ expenses, onDelete }: ExpensesListProps) => {
           {filteredExpenses.map((expense) => (
             <div key={expense.id} className="flex items-center justify-between p-4 border rounded-lg">
               <div>
-                <p className="font-medium">{expense.title}</p>
+                <div className="flex items-center gap-2">
+                  <p className="font-medium">{expense.title}</p>
+                  {expense.is_recurring && (
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                      <Repeat className="h-3 w-3" />
+                      <span>Recurring</span>
+                    </div>
+                  )}
+                </div>
                 <div className="flex gap-2 text-sm text-muted-foreground">
                   <span>{expense.month}</span>
                   <span>•</span>
