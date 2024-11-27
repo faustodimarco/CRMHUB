@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Download } from "lucide-react";
+import { Plus, Download, FileText } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getInvoices, deleteInvoice, downloadInvoices } from "@/services/invoiceService";
 import { useToast } from "@/hooks/use-toast";
@@ -71,7 +71,10 @@ const Invoices = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Invoices</h2>
+        <div className="flex items-center gap-2">
+          <FileText className="h-6 w-6 text-primary" />
+          <h2 className="text-2xl font-bold">Invoices</h2>
+        </div>
         <div className="flex gap-2">
           {selectedInvoices.length > 0 && (
             <Button onClick={handleDownload}>
