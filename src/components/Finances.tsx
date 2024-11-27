@@ -9,7 +9,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, MoreVertical } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import AddExpenseForm from "./finances/AddExpenseForm";
 import AddRevenueForm from "./finances/AddRevenueForm";
 import CsvUploader from "./finances/CsvUploader";
@@ -94,23 +101,20 @@ const Finances = () => {
 
   return (
     <div className="space-y-8">
-      <FinanceStats 
-        totalRevenue={totalRevenue}
-        totalExpenses={totalExpenses}
-        netProfit={netProfit}
-        revenueChange={revenueChange}
-        expensesChange={expensesChange}
-      />
-
-      <RevenueExpenseChart data={chartData} />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-4">
-          <h3 className="text-lg font-semibold mb-4">Add New Entries</h3>
-          <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Finances</h2>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="w-full">Add Revenue</Button>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Add Revenue
+                </DropdownMenuItem>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -122,7 +126,9 @@ const Finances = () => {
 
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="w-full">Add Expense</Button>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Add Expense
+                </DropdownMenuItem>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -131,23 +137,49 @@ const Finances = () => {
                 <AddExpenseForm />
               </DialogContent>
             </Dialog>
-          </div>
-        </Card>
 
-        <Card className="p-4">
-          <h3 className="text-lg font-semibold mb-4">Import Data</h3>
-          <div className="space-y-4">
-            <div className="p-4 border rounded-lg">
-              <h4 className="font-medium mb-2">Import Revenue CSV</h4>
-              <CsvUploader type="revenue" />
-            </div>
-            <div className="p-4 border rounded-lg">
-              <h4 className="font-medium mb-2">Import Expenses CSV</h4>
-              <CsvUploader type="expenses" />
-            </div>
-          </div>
-        </Card>
+            <DropdownMenuSeparator />
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Import Revenue CSV
+                </DropdownMenuItem>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Import Revenue CSV</DialogTitle>
+                </DialogHeader>
+                <CsvUploader type="revenue" />
+              </DialogContent>
+            </Dialog>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Import Expenses CSV
+                </DropdownMenuItem>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Import Expenses CSV</DialogTitle>
+                </DialogHeader>
+                <CsvUploader type="expenses" />
+              </DialogContent>
+            </Dialog>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
+
+      <FinanceStats 
+        totalRevenue={totalRevenue}
+        totalExpenses={totalExpenses}
+        netProfit={netProfit}
+        revenueChange={revenueChange}
+        expensesChange={expensesChange}
+      />
+
+      <RevenueExpenseChart data={chartData} />
 
       <Card className="p-4">
         <h3 className="text-lg font-semibold mb-4">Expenses List</h3>
