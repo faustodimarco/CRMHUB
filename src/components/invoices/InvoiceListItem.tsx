@@ -25,20 +25,20 @@ export const InvoiceListItem = ({
   onSelect,
 }: InvoiceListItemProps) => {
   return (
-    <div className="grid grid-cols-8 gap-4 p-4 text-sm items-center rounded-lg transition-all hover:bg-muted/50 border border-transparent hover:border-border">
-      <div className="col-span-1 w-12">
+    <div className="grid grid-cols-8 gap-4 px-4 py-3 text-sm items-center rounded-lg transition-all hover:bg-muted/50 border border-transparent hover:border-border">
+      <div className="col-span-1 w-12 flex items-center">
         <Checkbox
           checked={isSelected}
           onCheckedChange={onSelect}
         />
       </div>
-      <div className="col-span-1 font-medium">{invoice.invoice_number}</div>
-      <div className="col-span-2 font-medium text-foreground">{invoice.client_name}</div>
-      <div className="text-muted-foreground">{new Date(invoice.issue_date).toLocaleDateString()}</div>
-      <div className="text-muted-foreground">{new Date(invoice.due_date).toLocaleDateString()}</div>
-      <div className="font-medium">${invoice.amount.toLocaleString()}</div>
-      <div>
-        <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
+      <div className="col-span-1 font-medium truncate">{invoice.invoice_number}</div>
+      <div className="col-span-2 font-medium text-foreground truncate">{invoice.client_name}</div>
+      <div className="text-muted-foreground truncate">{new Date(invoice.issue_date).toLocaleDateString()}</div>
+      <div className="text-muted-foreground truncate">{new Date(invoice.due_date).toLocaleDateString()}</div>
+      <div className="font-medium truncate">${invoice.amount.toLocaleString()}</div>
+      <div className="flex items-center">
+        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
           invoice.status === 'paid'
             ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400'
             : invoice.status === 'pending'
