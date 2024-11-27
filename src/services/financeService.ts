@@ -63,7 +63,7 @@ export const deleteExpense = async (id: number) => {
   const { error } = await supabase
     .from('expenses')
     .delete()
-    .eq('id', id);
+    .match({ id });
 
   if (error) throw error;
 };

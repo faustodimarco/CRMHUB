@@ -29,11 +29,7 @@ const ExpensesList = ({ expenses, onDelete }: ExpensesListProps) => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => {
-                  if (expense.id) {
-                    onDelete(expense.id);
-                  }
-                }}
+                onClick={() => onDelete(expense.id)}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
