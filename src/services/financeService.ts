@@ -44,7 +44,7 @@ export const addRevenue = async (revenue: Omit<Revenue, 'id' | 'created_at'>) =>
     .from('revenue')
     .insert([revenue])
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;
@@ -55,7 +55,7 @@ export const addExpense = async (expense: Omit<Expense, 'id' | 'created_at'>) =>
     .from('expenses')
     .insert([expense])
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;
@@ -67,7 +67,7 @@ export const editRevenue = async (id: number, revenue: Partial<Omit<Revenue, 'id
     .update(revenue)
     .eq('id', id)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;
@@ -79,7 +79,7 @@ export const editExpense = async (id: number, expense: Partial<Omit<Expense, 'id
     .update(expense)
     .eq('id', id)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;
