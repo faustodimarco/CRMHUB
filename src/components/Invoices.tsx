@@ -70,7 +70,7 @@ const Invoices = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center border-b border-border/50 pb-4">
         <div className="flex items-center gap-2">
           <FileText className="h-6 w-6 text-primary" />
           <h2 className="text-2xl font-bold">Invoices</h2>
