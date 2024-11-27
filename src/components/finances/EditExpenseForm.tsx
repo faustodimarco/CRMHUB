@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -31,11 +32,16 @@ const EditExpenseForm = ({ expense, onClose }: EditExpenseFormProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [date, setDate] = useState<Date | undefined>(new Date(expense.month));
+  const [recurringEndDate, setRecurringEndDate] = useState<Date | undefined>(
+    expense.recurring_end_date ? new Date(expense.recurring_end_date) : undefined
+  );
   const [formData, setFormData] = useState({
     title: expense.title,
     month: expense.month,
     amount: expense.amount.toString(),
     category: expense.category,
+    is_recurring: expense.is_recurring || false,
+    recurring_end_date: expense.recurring_end_date || null,
   });
 
   const { mutate } = useMutation({
@@ -65,6 +71,8 @@ const EditExpenseForm = ({ expense, onClose }: EditExpenseFormProps) => {
       month: formData.month,
       amount: parseFloat(formData.amount),
       category: formData.category,
+      is_recurring: formData.is_recurring,
+      recurring_end_date: formData.recurring_end_date,
     });
   };
 
@@ -74,6 +82,16 @@ const EditExpenseForm = ({ expense, onClose }: EditExpenseFormProps) => {
       setFormData({
         ...formData,
         month: date.toISOString().slice(0, 7)
+      });
+    }
+  };
+
+  const handleRecurringEndDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setRecurringEndDate(date);
+      setFormData({
+        ...formData,
+        recurring_end_date: date.toISOString().slice(0, 10)
       });
     }
   };
@@ -146,6 +164,47 @@ const EditExpenseForm = ({ expense, onClose }: EditExpenseFormProps) => {
           </Select>
         </div>
       </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="recurring"
+          checked={formData.is_recurring}
+          onCheckedChange={(checked) => 
+            setFormData({ ...formData, is_recurring: checked as boolean })
+          }
+        />
+        <Label htmlFor="recurring">Recurring expense</Label>
+      </div>
+
+      {formData.is_recurring && (
+        <div className="space-y-2">
+          <Label>End Date (Optional)</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !recurringEndDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {recurringEndDate ? format(recurringEndDate, "PP") : <span>Pick an end date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={recurringEndDate}
+                onSelect={handleRecurringEndDateSelect}
+                initialFocus
+                disabled={(date) => date <= new Date()}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
+
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
         <Button type="submit">Update Expense</Button>
