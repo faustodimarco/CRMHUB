@@ -40,7 +40,7 @@ function UserNav() {
     <motion.div 
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="absolute top-4 right-4"
+      className="flex items-center"
     >
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
