@@ -39,9 +39,12 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-primary/10 hover:ring-primary/30 transition-all duration-200">
-          <Avatar className="h-10 w-10 transition-transform duration-200 hover:scale-105">
-            <AvatarFallback className="bg-primary/10 text-primary font-medium">
+        <Button 
+          variant="ghost" 
+          className="relative h-8 w-8 rounded-full ring-1 ring-border hover:ring-primary/50 transition-all duration-200"
+        >
+          <Avatar className="h-8 w-8 transition-transform duration-200 hover:scale-105">
+            <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
               {user?.email ? getInitials(user.email) : ''}
             </AvatarFallback>
           </Avatar>
@@ -56,7 +59,7 @@ export function UserNav() {
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 p-3 rounded-md bg-secondary/50"
+          className="flex items-center gap-3 p-3 rounded-md bg-secondary/50 backdrop-blur-sm"
         >
           <User className="h-5 w-5 text-muted-foreground" />
           <div className="flex flex-col space-y-1">
