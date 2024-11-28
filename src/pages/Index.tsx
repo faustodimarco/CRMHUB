@@ -24,24 +24,26 @@ const Index = () => {
             ) : (
               <h1 className="text-lg font-light tracking-tight">Web Agency <span className="text-primary font-normal">CRM</span></h1>
             )}
-            <nav className="hidden md:flex items-center space-x-1">
-              <TabsList className="bg-transparent border-none">
-                <TabsTrigger value="dashboard" className="data-[state=active]:bg-secondary/30 data-[state=active]:text-primary px-4">
-                  Dashboard
-                </TabsTrigger>
-                <TabsTrigger value="clients" className="data-[state=active]:bg-secondary/30 data-[state=active]:text-primary px-4">
-                  Clients
-                </TabsTrigger>
-                <TabsTrigger value="tasks" className="data-[state=active]:bg-secondary/30 data-[state=active]:text-primary px-4">
-                  Tasks
-                </TabsTrigger>
-                <TabsTrigger value="finances" className="data-[state=active]:bg-secondary/30 data-[state=active]:text-primary px-4">
-                  Finances
-                </TabsTrigger>
-                <TabsTrigger value="invoices" className="data-[state=active]:bg-secondary/30 data-[state=active]:text-primary px-4">
-                  Invoices
-                </TabsTrigger>
-              </TabsList>
+            <nav className="hidden md:block">
+              <Tabs defaultValue="dashboard">
+                <TabsList className="bg-transparent border-none">
+                  <TabsTrigger value="dashboard" className="data-[state=active]:bg-secondary/30 data-[state=active]:text-primary px-4">
+                    Dashboard
+                  </TabsTrigger>
+                  <TabsTrigger value="clients" className="data-[state=active]:bg-secondary/30 data-[state=active]:text-primary px-4">
+                    Clients
+                  </TabsTrigger>
+                  <TabsTrigger value="tasks" className="data-[state=active]:bg-secondary/30 data-[state=active]:text-primary px-4">
+                    Tasks
+                  </TabsTrigger>
+                  <TabsTrigger value="finances" className="data-[state=active]:bg-secondary/30 data-[state=active]:text-primary px-4">
+                    Finances
+                  </TabsTrigger>
+                  <TabsTrigger value="invoices" className="data-[state=active]:bg-secondary/30 data-[state=active]:text-primary px-4">
+                    Invoices
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
             </nav>
           </div>
           <UserNav />
