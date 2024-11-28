@@ -13,25 +13,25 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border/10 backdrop-blur-sm bg-background/50 sticky top-0 z-50">
-        <div className="max-w-[1400px] mx-auto px-8 h-16 flex items-center justify-between">
+        <div className="max-w-[1400px] mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center">
             {logoUrl ? (
               <img 
                 src={logoUrl} 
                 alt="Web Agency CRM" 
-                className="h-8 object-contain"
+                className="h-6 object-contain"
               />
             ) : (
-              <h1 className="text-2xl font-light tracking-tight">Web Agency <span className="text-primary font-normal">CRM</span></h1>
+              <h1 className="text-xl font-light tracking-tight">Web Agency <span className="text-primary font-normal">CRM</span></h1>
             )}
           </div>
           <UserNav />
         </div>
       </header>
 
-      <main className="max-w-[1400px] mx-auto p-8">
-        <Tabs defaultValue="dashboard" className="space-y-8">
-          <Card className="p-1.5 bg-card/50 backdrop-blur-sm border-border/50">
+      <main className="max-w-[1400px] mx-auto p-6">
+        <Tabs defaultValue="dashboard" className="space-y-6">
+          <Card className="p-1 bg-card/30 backdrop-blur-sm border-border/30">
             <TabsList className="w-full justify-start bg-transparent">
               <TabsTrigger value="dashboard" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
                 Dashboard
