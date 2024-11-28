@@ -15,10 +15,11 @@ const Index = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("dashboard");
 
+  // Sync URL with tab state
   useEffect(() => {
-    const path = location.pathname.split('/')[1] || 'dashboard';
+    const path = location.pathname.slice(1) || 'dashboard';
     setActiveTab(path);
-  }, [location]);
+  }, [location.pathname]);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);

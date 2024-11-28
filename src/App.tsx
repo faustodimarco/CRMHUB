@@ -104,22 +104,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 const AppRoutes = () => (
   <Routes>
-    <Route
-      path="/"
-      element={
-        <ProtectedRoute>
-          <Index />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/settings"
-      element={
-        <ProtectedRoute>
-          <Settings />
-        </ProtectedRoute>
-      }
-    />
+    <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+    <Route path="/dashboard" element={<Navigate to="/" replace />} />
+    <Route path="/clients" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+    <Route path="/tasks" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+    <Route path="/finances" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+    <Route path="/invoices" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+    <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
     <Route path="/login" element={<Login />} />
     <Route path="/signup" element={<Signup />} />
   </Routes>
