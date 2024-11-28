@@ -5,24 +5,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateClient, deleteClient } from "@/services/clientService";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import ClientField from "./ClientField";
+import DeleteClientDialog from "./DeleteClientDialog";
 
 interface ClientDetailsProps {
   open: boolean;
@@ -101,37 +90,8 @@ const ClientDetailsDialog = ({ open, onOpenChange, client }: ClientDetailsProps)
     updateMutation.mutate(editedClient);
   };
 
-  const renderField = (label: string, value: string, field: keyof typeof editedClient) => {
-    if (isEditing && !['activeProjects', 'totalRevenue'].includes(field)) {
-      return (
-        <div className="space-y-2">
-          <Label>{label}</Label>
-          <Input
-            value={editedClient[field]}
-            onChange={(e) => setEditedClient({ ...editedClient, [field]: e.target.value })}
-            className="w-full"
-          />
-        </div>
-      );
-    }
-    return (
-      <div className="space-y-2">
-        <Label>{label}</Label>
-        <div className="p-2 bg-secondary rounded-md">
-          {field === 'website' || field === 'linkedin' ? (
-            value ? (
-              <a href={value} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                {value}
-              </a>
-            ) : (
-              "Not provided"
-            )
-          ) : (
-            value
-          )}
-        </div>
-      </div>
-    );
+  const handleFieldChange = (field: keyof typeof editedClient, value: string) => {
+    setEditedClient({ ...editedClient, [field]: value });
   };
 
   return (
@@ -142,28 +102,103 @@ const ClientDetailsDialog = ({ open, onOpenChange, client }: ClientDetailsProps)
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">
-            {renderField("First Name", client.firstName, "firstName")}
-            {renderField("Last Name", client.lastName, "lastName")}
+            <ClientField
+              label="First Name"
+              value={client.firstName}
+              field="firstName"
+              isEditing={isEditing}
+              editedValue={editedClient.firstName}
+              onChange={(value) => handleFieldChange("firstName", value)}
+            />
+            <ClientField
+              label="Last Name"
+              value={client.lastName}
+              field="lastName"
+              isEditing={isEditing}
+              editedValue={editedClient.lastName}
+              onChange={(value) => handleFieldChange("lastName", value)}
+            />
           </div>
 
-          {renderField("Email", client.email, "email")}
+          <ClientField
+            label="Email"
+            value={client.email}
+            field="email"
+            isEditing={isEditing}
+            editedValue={editedClient.email}
+            onChange={(value) => handleFieldChange("email", value)}
+          />
 
           <div className="grid grid-cols-[120px_1fr] gap-2">
-            {renderField("Phone Prefix", client.phonePrefix, "phonePrefix")}
-            {renderField("Phone Number", client.phoneNumber, "phoneNumber")}
+            <ClientField
+              label="Phone Prefix"
+              value={client.phonePrefix}
+              field="phonePrefix"
+              isEditing={isEditing}
+              editedValue={editedClient.phonePrefix}
+              onChange={(value) => handleFieldChange("phonePrefix", value)}
+            />
+            <ClientField
+              label="Phone Number"
+              value={client.phoneNumber}
+              field="phoneNumber"
+              isEditing={isEditing}
+              editedValue={editedClient.phoneNumber}
+              onChange={(value) => handleFieldChange("phoneNumber", value)}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            {renderField("Country", client.country, "country")}
-            {renderField("City", client.city, "city")}
+            <ClientField
+              label="Country"
+              value={client.country}
+              field="country"
+              isEditing={isEditing}
+              editedValue={editedClient.country}
+              onChange={(value) => handleFieldChange("country", value)}
+            />
+            <ClientField
+              label="City"
+              value={client.city}
+              field="city"
+              isEditing={isEditing}
+              editedValue={editedClient.city}
+              onChange={(value) => handleFieldChange("city", value)}
+            />
           </div>
 
-          {renderField("Website", client.website, "website")}
-          {renderField("LinkedIn Profile", client.linkedin, "linkedin")}
+          <ClientField
+            label="Website"
+            value={client.website}
+            field="website"
+            isEditing={isEditing}
+            editedValue={editedClient.website}
+            onChange={(value) => handleFieldChange("website", value)}
+            isLink
+          />
+          <ClientField
+            label="LinkedIn Profile"
+            value={client.linkedin}
+            field="linkedin"
+            isEditing={isEditing}
+            editedValue={editedClient.linkedin}
+            onChange={(value) => handleFieldChange("linkedin", value)}
+            isLink
+          />
 
           <div className="grid grid-cols-2 gap-4">
-            {renderField("Active Projects", client.activeProjects.toString(), "activeProjects")}
-            {renderField("Total Revenue", `$${client.totalRevenue.toLocaleString()}`, "totalRevenue")}
+            <ClientField
+              label="Active Projects"
+              value={client.activeProjects.toString()}
+              field="activeProjects"
+              isEditing={isEditing}
+            />
+            <ClientField
+              label="Total Revenue"
+              value={`$${client.totalRevenue.toLocaleString()}`}
+              field="totalRevenue"
+              isEditing={isEditing}
+            />
           </div>
         </div>
         <DialogFooter className="flex justify-between">
@@ -180,26 +215,7 @@ const ClientDetailsDialog = ({ open, onOpenChange, client }: ClientDetailsProps)
               <Button onClick={() => setIsEditing(true)} variant="outline">Edit</Button>
             )}
           </div>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive">Delete Client</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the client
-                  and remove their data from our servers.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => deleteMutation.mutate()} className="bg-destructive">
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <DeleteClientDialog onDelete={() => deleteMutation.mutate()} />
         </DialogFooter>
       </DialogContent>
     </Dialog>
