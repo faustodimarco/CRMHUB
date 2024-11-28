@@ -36,7 +36,7 @@ const ClientField = ({
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
-      <div className="p-4 bg-secondary/40 rounded-xl">
+      <div className="p-3 bg-secondary/40 rounded-full">
         {isLink ? (
           value ? (
             <a href={value} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
