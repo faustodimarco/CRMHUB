@@ -6,26 +6,26 @@
  
 @layer base {
   :root {
-    --background: 220 15% 12%;
+    --background: 225 25% 7%;
     --foreground: 220 10% 98%;
-    --card: 220 15% 15%;
+    --card: 225 25% 9%;
     --card-foreground: 220 10% 98%;
-    --popover: 220 15% 15%;
+    --popover: 225 25% 9%;
     --popover-foreground: 220 10% 98%;
-    --primary: 25 95% 53%;
-    --primary-foreground: 220 15% 12%;
-    --secondary: 220 15% 15%;
+    --primary: 158 84% 68%;
+    --primary-foreground: 225 25% 7%;
+    --secondary: 225 25% 12%;
     --secondary-foreground: 220 10% 98%;
-    --muted: 220 15% 15%;
+    --muted: 225 25% 12%;
     --muted-foreground: 220 15% 65%;
-    --accent: 25 95% 53%;
-    --accent-foreground: 220 15% 12%;
-    --destructive: 0 84.2% 60.2%;
+    --accent: 225 25% 12%;
+    --accent-foreground: 220 10% 98%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 20% 98%;
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
-    --ring: 25 95% 53%;
-    --radius: 0.5rem;
+    --border: 225 25% 14%;
+    --input: 225 25% 14%;
+    --ring: 158 84% 68%;
+    --radius: 0.75rem;
   }
 
   * {
@@ -34,13 +34,23 @@
 
   body {
     @apply bg-background text-foreground font-['Poppins'] font-light;
+    background: radial-gradient(circle at top, hsl(225 25% 9%), hsl(225 25% 7%));
+    min-height: 100vh;
   }
 }
 
 .kanban-column {
-  @apply bg-secondary/30 backdrop-blur-sm rounded-lg p-4 min-h-[500px] w-[300px] border border-border/30;
+  @apply bg-secondary/20 backdrop-blur-sm rounded-xl p-4 min-h-[500px] w-[300px] border border-border/20;
 }
 
 .task-card {
-  @apply bg-card/30 backdrop-blur-sm rounded-md p-3 mb-3 shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 border border-border/30;
+  @apply bg-card/20 backdrop-blur-sm rounded-lg p-3 mb-3 shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 border border-border/20;
+}
+
+.glass-card {
+  @apply bg-secondary/10 backdrop-blur-md border border-border/10 rounded-xl;
+}
+
+.highlight-card {
+  @apply bg-primary/10 backdrop-blur-md border border-primary/20 rounded-xl text-primary-foreground;
 }
