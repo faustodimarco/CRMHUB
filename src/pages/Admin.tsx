@@ -75,18 +75,18 @@ const Admin = () => {
     },
   });
 
-  // Check if current user is admin
+  // Check if current user is admin - Updated to use the users table
   const { data: isAdmin } = useQuery({
     queryKey: ['is-admin'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('admins')
-        .select('*')
-        .eq('user_id', user?.id)
+        .from('users')
+        .select('is_admin')
+        .eq('id', user?.id)
         .single();
       
       if (error) return false;
-      return !!data;
+      return data?.is_admin || false;
     },
   });
 
