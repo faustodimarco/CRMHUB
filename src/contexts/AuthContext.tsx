@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { Session } from "@supabase/supabase-js";
+import { Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "@/hooks/useUserData";
@@ -69,32 +69,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
       toast.success('Please check your email to confirm your account');
       navigate('/login');
-    } catch (error: any) {
-      console.error('Error signing up:', error);
-      toast.error(error.message || 'Error signing up');
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error('Error signing up:', authError);
+      toast.error(authError.message || 'Error signing up');
       throw error;
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error, data } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
       if (error) throw error;
       
-      if (data.user) {
+      if (data?.user) {
         const userData = await fetchUserData(data.user.id, data.user);
-        setUser(userData);
+        if (userData) {
+          setUser(userData);
+          toast.success('Successfully signed in');
+          navigate("/");
+        }
       }
-      
-      toast.success('Successfully signed in');
-      navigate("/");
-    } catch (error: any) {
-      console.error('Error signing in:', error);
-      toast.error(error.message || 'Error signing in');
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error('Error signing in:', authError);
+      toast.error(authError.message || 'Error signing in');
       throw error;
     }
   };
@@ -105,9 +108,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
       setUser(null);
       navigate("/login");
-    } catch (error: any) {
-      console.error('Error signing out:', error);
-      toast.error(error.message || 'Error signing out');
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error('Error signing out:', authError);
+      toast.error(authError.message || 'Error signing out');
       throw error;
     }
   };

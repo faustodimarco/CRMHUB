@@ -4,12 +4,17 @@ import { supabase } from '@/lib/supabase';
 import { AuthUser } from '@/types';
 import { toast } from 'sonner';
 
+interface UserData {
+  is_admin: boolean;
+  is_verified: boolean;
+}
+
 export const useUserData = () => {
   const [user, setUser] = useState<AuthUser | null>(null);
 
-  const fetchUserData = async (userId: string, sessionUser: User) => {
+  const fetchUserData = async (userId: string, sessionUser: User): Promise<AuthUser | null> => {
     try {
-      let { data: userData, error } = await supabase
+      const { data: userData, error } = await supabase
         .from('users')
         .select('is_admin, is_verified')
         .eq('id', userId)
@@ -18,17 +23,14 @@ export const useUserData = () => {
       if (error) {
         console.error('Error fetching user data:', error);
         
-        // If user doesn't exist, create them
         if (error.code === 'PGRST116') {
           const { data: newUserData, error: insertError } = await supabase
             .from('users')
-            .insert([
-              { 
-                id: userId,
-                is_admin: false,
-                is_verified: false
-              }
-            ])
+            .insert([{ 
+              id: userId,
+              is_admin: false,
+              is_verified: false
+            }])
             .select('is_admin, is_verified')
             .single();
 
@@ -38,11 +40,15 @@ export const useUserData = () => {
             return null;
           }
 
-          userData = newUserData;
-        } else {
-          toast.error('Error fetching user data');
-          return null;
+          return {
+            ...sessionUser,
+            is_admin: newUserData?.is_admin || false,
+            is_verified: newUserData?.is_verified || false,
+          } as AuthUser;
         }
+        
+        toast.error('Error fetching user data');
+        return null;
       }
 
       return {
