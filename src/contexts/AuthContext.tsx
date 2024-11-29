@@ -59,6 +59,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error) {
+        if (error.code === 'PGRST116') {
+          // User doesn't exist in the users table, create them
+          const { data: newUser, error: insertError } = await supabase
+            .from('users')
+            .insert([
+              { 
+                id: userId,
+                is_admin: false,
+                is_verified: false
+              }
+            ])
+            .select('is_admin, is_verified')
+            .single();
+
+          if (insertError) {
+            console.error('Error creating user data:', insertError);
+            return;
+          }
+
+          setUser({
+            ...(session?.user as User),
+            is_admin: newUser.is_admin,
+            is_verified: newUser.is_verified,
+          });
+          return;
+        }
         console.error('Error fetching user data:', error);
         return;
       }
