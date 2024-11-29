@@ -32,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session?.user) {
           const userData = await fetchUserData(session.user.id, session.user);
           setUser(userData);
+          navigate('/');
         } else {
           setUser(null);
         }
@@ -48,7 +49,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log('Auth state changed:', _event, session?.user?.id);
       setSession(session);
       if (session?.user) {
         const userData = await fetchUserData(session.user.id, session.user);
@@ -64,29 +64,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('AuthContext: Attempting to sign in...');
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
-      if (error) {
-        console.error('Sign in error:', error);
-        throw error;
-      }
-      
-      console.log('Sign in successful:', data);
+      if (error) throw error;
       
       if (!data?.user) {
-        console.error('No user data received');
         throw new Error('No user data received');
       }
 
       const userData = await fetchUserData(data.user.id, data.user);
-      console.log('User data fetched:', userData);
       
       if (!userData) {
-        console.error('Failed to fetch user data');
         throw new Error('Failed to fetch user data');
       }
 
