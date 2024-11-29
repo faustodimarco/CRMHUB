@@ -16,6 +16,11 @@ export interface Client {
 }
 
 export const addClient = async (client: Omit<Client, 'id' | 'created_at'>) => {
+  const { data: session } = await supabase.auth.getSession();
+  if (!session.session) {
+    throw new Error('Not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('clients')
     .insert([client])
@@ -27,6 +32,11 @@ export const addClient = async (client: Omit<Client, 'id' | 'created_at'>) => {
 };
 
 export const getClients = async () => {
+  const { data: session } = await supabase.auth.getSession();
+  if (!session.session) {
+    throw new Error('Not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('clients')
     .select('*')
@@ -37,6 +47,11 @@ export const getClients = async () => {
 };
 
 export const updateClient = async (id: number, client: Partial<Omit<Client, 'id' | 'created_at'>>) => {
+  const { data: session } = await supabase.auth.getSession();
+  if (!session.session) {
+    throw new Error('Not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('clients')
     .update(client)
@@ -49,6 +64,11 @@ export const updateClient = async (id: number, client: Partial<Omit<Client, 'id'
 };
 
 export const deleteClient = async (id: number) => {
+  const { data: session } = await supabase.auth.getSession();
+  if (!session.session) {
+    throw new Error('Not authenticated');
+  }
+
   const { error } = await supabase
     .from('clients')
     .delete()
