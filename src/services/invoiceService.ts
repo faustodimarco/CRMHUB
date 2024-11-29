@@ -1,20 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import JSZip from 'jszip';
+import type { Invoice } from '@/types';
 
-export interface Invoice {
-  id: string;
-  invoice_number: string;
-  client_name: string;
-  amount: number;
-  issue_date: string;
-  due_date: string;
-  status: 'draft' | 'pending' | 'paid';
-  file_path: string;
-  created_at: string;
-  user_id?: string;
-}
-
-export const uploadInvoice = async (file: File, invoiceData: Omit<Invoice, 'id' | 'created_at' | 'file_path'>) => {
+export const uploadInvoice = async (file: File, invoiceData: Omit<Invoice, 'id' | 'created_at' | 'file_path' | 'user_id'>) => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('User not authenticated');
 
