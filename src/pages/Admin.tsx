@@ -2,19 +2,13 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { UserCheck, UserX, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { PendingUsersTable } from "@/components/admin/PendingUsersTable";
+import { User } from "@/components/admin/types";
 
 const Admin = () => {
   const { toast } = useToast();
@@ -24,12 +18,12 @@ const Admin = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Fetch pending users with their email addresses
-  const { data: pendingUsers = [] } = useQuery({
+  const { data: pendingUsers = [] } = useQuery<User[]>({
     queryKey: ['pending-users'],
     queryFn: async () => {
       const { data: users, error } = await supabase
         .from('users')
-        .select('*')
+        .select('id, created_at, is_verified')
         .eq('is_verified', false);
       
       if (error) {
@@ -37,22 +31,19 @@ const Admin = () => {
         throw error;
       }
 
-      // Get the email addresses from auth metadata
-      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) {
-        console.error('Error fetching auth users:', authError);
-        throw authError;
-      }
+      // Get the email addresses from auth metadata using the client
+      const emails = await Promise.all(
+        users?.map(async (user) => {
+          const { data: { user: authUser } } = await supabase.auth.admin.getUserById(user.id);
+          return authUser?.email || null;
+        }) || []
+      );
 
       // Combine the data
-      const usersWithEmail = users?.map(user => {
-        const authUser = authUsers?.find(au => au.id === user.id);
-        return {
-          ...user,
-          email: authUser?.email
-        };
-      }) || [];
+      const usersWithEmail = users?.map((user, index) => ({
+        ...user,
+        email: emails[index] || 'No email available'
+      })) || [];
 
       return usersWithEmail;
     },
@@ -102,8 +93,6 @@ const Admin = () => {
     queryFn: async () => {
       if (!user?.id) return false;
       
-      console.log('Checking admin status for user:', user.id);
-      
       const { data, error } = await supabase
         .from('users')
         .select('is_admin')
@@ -115,7 +104,6 @@ const Admin = () => {
         return false;
       }
       
-      console.log('Admin check result:', data);
       return data?.is_admin || false;
     },
     enabled: !!user?.id,
@@ -151,54 +139,12 @@ const Admin = () => {
           </div>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Email</TableHead>
-              <TableHead>Registered At</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {pendingUsers.map((pendingUser) => (
-              <TableRow key={pendingUser.id}>
-                <TableCell>{pendingUser.email || 'No email available'}</TableCell>
-                <TableCell>{new Date(pendingUser.created_at).toLocaleDateString()}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => acceptUserMutation.mutate(pendingUser.id)}
-                      disabled={isLoading}
-                      className="text-green-600 hover:text-green-700"
-                    >
-                      <UserCheck className="w-4 h-4 mr-1" />
-                      Accept
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => refuseUserMutation.mutate(pendingUser.id)}
-                      disabled={isLoading}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <UserX className="w-4 h-4 mr-1" />
-                      Refuse
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-            {pendingUsers.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
-                  No pending user registrations
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+        <PendingUsersTable
+          pendingUsers={pendingUsers}
+          onAccept={(userId) => acceptUserMutation.mutate(userId)}
+          onRefuse={(userId) => refuseUserMutation.mutate(userId)}
+          isLoading={isLoading}
+        />
       </Card>
     </div>
   );
