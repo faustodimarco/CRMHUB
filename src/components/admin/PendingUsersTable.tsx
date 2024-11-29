@@ -25,7 +25,7 @@ export function PendingUsersTable({
   const getStatusBadge = (status: User['verification_status']) => {
     switch (status) {
       case 'accepted':
-        return <Badge className="bg-green-500">Accepted</Badge>;
+        return <Badge className="bg-primary text-primary-foreground">Accepted</Badge>;
       case 'refused':
         return <Badge variant="destructive">Refused</Badge>;
       default:
@@ -67,7 +67,6 @@ export function PendingUsersTable({
                             size="sm"
                             onClick={() => onAccept(user.id)}
                             disabled={isLoading}
-                            className="bg-primary hover:bg-primary/90"
                           >
                             <UserCheck className="w-4 h-4 mr-1" />
                             Accept
