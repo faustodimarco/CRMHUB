@@ -13,27 +13,30 @@ import {
 import { Shield, Check, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
+interface AuthUser {
+  id: string;
+  email: string;
+  created_at: string;
+  is_verified: boolean;
+}
+
 const AdminVerification = () => {
   const { toast } = useToast();
 
   const { data: users = [], refetch } = useQuery({
     queryKey: ['unverified-users'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('auth.users')
-        .select('*')
-        .eq('is_verified', false)
-        .order('signup_date', { ascending: false });
-
+      const { data: { users }, error } = await supabase.auth.admin.listUsers();
       if (error) throw error;
-      return data || [];
+      
+      return users.filter(user => !user.user_metadata?.is_verified) || [];
     },
   });
 
   const handleVerify = async (userId: string) => {
     try {
       const { error } = await supabase
-        .from('auth.users')
+        .from('users')
         .update({ is_verified: true })
         .eq('id', userId);
 
@@ -55,10 +58,7 @@ const AdminVerification = () => {
 
   const handleReject = async (userId: string) => {
     try {
-      const { error } = await supabase
-        .from('auth.users')
-        .delete()
-        .eq('id', userId);
+      const { error } = await supabase.auth.admin.deleteUser(userId);
 
       if (error) throw error;
 
@@ -94,15 +94,15 @@ const AdminVerification = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
+            {users.map((user: AuthUser) => (
               <TableRow key={user.id}>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
-                  {formatDistanceToNow(new Date(user.signup_date), { addSuffix: true })}
+                  {formatDistanceToNow(new Date(user.created_at), { addSuffix: true })}
                 </TableCell>
                 <TableCell>
                   {formatDistanceToNow(
-                    new Date(new Date(user.signup_date).getTime() + 5 * 24 * 60 * 60 * 1000),
+                    new Date(new Date(user.created_at).getTime() + 5 * 24 * 60 * 60 * 1000),
                     { addSuffix: true }
                   )}
                 </TableCell>

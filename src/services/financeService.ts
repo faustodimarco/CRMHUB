@@ -115,13 +115,17 @@ export const deleteRevenue = async (id: number) => {
 
 export const uploadCsv = async (file: File, type: 'revenue' | 'expenses') => {
   return new Promise((resolve, reject) => {
-    Papa.parse(file, {
+    Papa.parse<Partial<Revenue | Expense>>(file, {
       header: true,
       complete: async (results) => {
         try {
           const { data, error } = await supabase
             .from(type)
-            .insert(results.data);
+            .insert(results.data.map(item => ({
+              ...item,
+              amount: typeof item.amount === 'string' ? parseFloat(item.amount) : item.amount,
+              is_recurring: item.is_recurring || false,
+            })));
           
           if (error) throw error;
           resolve(data);
