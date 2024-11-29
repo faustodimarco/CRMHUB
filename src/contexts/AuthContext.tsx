@@ -79,22 +79,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('Attempting to sign in...');
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
-      if (error) throw error;
-      
-      if (data?.user) {
-        const userData = await fetchUserData(data.user.id, data.user);
-        if (userData) {
-          setUser(userData);
-          setSession(data.session);
-          toast.success('Successfully signed in');
-          navigate("/");
-        }
+      if (error) {
+        console.error('Sign in error:', error);
+        throw error;
       }
+      
+      console.log('Sign in successful:', data);
+      
+      if (!data?.user) {
+        console.error('No user data received');
+        throw new Error('No user data received');
+      }
+
+      const userData = await fetchUserData(data.user.id, data.user);
+      console.log('User data fetched:', userData);
+      
+      if (!userData) {
+        console.error('Failed to fetch user data');
+        throw new Error('Failed to fetch user data');
+      }
+
+      setUser(userData);
+      setSession(data.session);
+      toast.success('Successfully signed in');
+      navigate("/");
     } catch (error) {
       const authError = error as AuthError;
       console.error('Error signing in:', authError);

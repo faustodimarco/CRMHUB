@@ -14,6 +14,8 @@ export const useUserData = () => {
 
   const fetchUserData = async (userId: string, sessionUser: User): Promise<AuthUser | null> => {
     try {
+      console.log('Fetching user data for ID:', userId);
+      
       const { data: userData, error } = await supabase
         .from('users')
         .select('is_admin, is_verified')
@@ -24,6 +26,8 @@ export const useUserData = () => {
         console.error('Error fetching user data:', error);
         
         if (error.code === 'PGRST116') {
+          console.log('User not found, creating new user record');
+          
           const { data: newUserData, error: insertError } = await supabase
             .from('users')
             .insert([{ 
@@ -40,6 +44,7 @@ export const useUserData = () => {
             return null;
           }
 
+          console.log('New user data created:', newUserData);
           return {
             ...sessionUser,
             is_admin: newUserData?.is_admin || false,
@@ -51,6 +56,7 @@ export const useUserData = () => {
         return null;
       }
 
+      console.log('User data fetched:', userData);
       return {
         ...sessionUser,
         is_admin: userData?.is_admin || false,
