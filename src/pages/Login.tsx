@@ -3,16 +3,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,12 +21,8 @@ export default function Login() {
       await signIn(email, password);
     } catch (error) {
       console.error("Login error:", error);
+    } finally {
       setIsLoading(false);
-      toast({
-        variant: "destructive",
-        title: "Error signing in",
-        description: "Please check your credentials and try again.",
-      });
     }
   };
 

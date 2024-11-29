@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useUserData } from "@/hooks/useUserData";
 import { AuthUser } from "@/types";
 import { toast } from "sonner";
@@ -21,26 +21,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, setUser, fetchUserData } = useUserData();
+
+  const handleSession = async (session: Session | null) => {
+    try {
+      if (session?.user) {
+        const userData = await fetchUserData(session.user.id, session.user);
+        setUser(userData);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Error handling session:', error);
+      toast.error('Error handling session');
+    }
+  };
 
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         setSession(session);
-        
-        if (session?.user) {
-          const userData = await fetchUserData(session.user.id, session.user);
-          setUser(userData);
-          if (window.location.pathname === '/login') {
-            navigate('/');
-          }
-        } else {
-          setUser(null);
-          if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
-            navigate('/login');
-          }
-        }
+        await handleSession(session);
       } catch (error) {
         console.error('Error initializing auth:', error);
         toast.error('Error initializing authentication');
@@ -55,15 +58,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
-      if (session?.user) {
-        const userData = await fetchUserData(session.user.id, session.user);
-        setUser(userData);
-        if (window.location.pathname === '/login') {
+      await handleSession(session);
+      
+      // Handle navigation based on auth state
+      if (session) {
+        if (location.pathname === '/login' || location.pathname === '/signup') {
           navigate('/');
         }
       } else {
-        setUser(null);
-        if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
+        if (!['/login', '/signup'].includes(location.pathname)) {
           navigate('/login');
         }
       }
@@ -73,6 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    setLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -93,17 +97,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(userData);
       setSession(data.session);
-      navigate('/');
       toast.success('Successfully signed in');
+      navigate('/');
     } catch (error) {
       const authError = error as AuthError;
       console.error('Error signing in:', authError);
       toast.error(authError.message || 'Error signing in');
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   const signUp = async (email: string, password: string) => {
+    setLoading(true);
     try {
       const { error } = await supabase.auth.signUp({
         email,
@@ -117,10 +124,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Error signing up:', authError);
       toast.error(authError.message || 'Error signing up');
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   const signOut = async () => {
+    setLoading(true);
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
@@ -132,6 +142,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Error signing out:', authError);
       toast.error(authError.message || 'Error signing out');
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -148,4 +160,4 @@ export const useAuth = () => {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-}
+};
