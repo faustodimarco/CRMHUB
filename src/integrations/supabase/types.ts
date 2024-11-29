@@ -128,6 +128,7 @@ export type Database = {
           amount: number
           created_at: string
           id: number
+          invoice_id: string | null
           invoice_number: string | null
           is_recurring: boolean | null
           month: string
@@ -138,6 +139,7 @@ export type Database = {
           amount: number
           created_at?: string
           id?: never
+          invoice_id?: string | null
           invoice_number?: string | null
           is_recurring?: boolean | null
           month: string
@@ -148,13 +150,22 @@ export type Database = {
           amount?: number
           created_at?: string
           id?: never
+          invoice_id?: string | null
           invoice_number?: string | null
           is_recurring?: boolean | null
           month?: string
           recurring_end_date?: string | null
           title?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "revenue_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tasks: {
         Row: {
