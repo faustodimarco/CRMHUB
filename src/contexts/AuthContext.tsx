@@ -39,16 +39,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserData = async (userId: string) => {
     try {
+      console.log('Fetching user data for ID:', userId);
+      
       const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user data:', error);
+        return null;
+      }
+
+      console.log('User data fetched:', data);
       return data;
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('Error managing user data:', error);
       return null;
     }
   };
@@ -75,6 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initializeAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session);
       setSession(session);
       setLoading(true);
 
@@ -140,7 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (error) throw error;
       
-      toast.success('Please check your email to confirm your account');
+      toast.success('Successfully signed up! You can now sign in.');
       navigate('/login');
     } catch (error) {
       const authError = error as AuthError;
