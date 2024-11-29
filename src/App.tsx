@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings as SettingsIcon, LogOut, User } from "lucide-react";
+import { Settings as SettingsIcon, LogOut, User, Shield } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -75,6 +75,13 @@ export function UserNav() {
         >
           <SettingsIcon className="h-4 w-4 text-muted-foreground" />
           <span>Settings</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => navigate('/admin')}
+          className="flex items-center gap-2 p-2 cursor-pointer rounded-md hover:bg-secondary/50 transition-colors duration-200"
+        >
+          <Shield className="h-4 w-4 text-muted-foreground" />
+          <span>Admin Panel</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="my-2 opacity-10" />
         <DropdownMenuItem 
