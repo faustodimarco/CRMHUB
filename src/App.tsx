@@ -99,9 +99,20 @@ export function UserNav() {
   );
 }
 
+function LoadingScreen() {
+  return (
+    <div className="h-screen w-screen flex items-center justify-center bg-background">
+      <div className="space-y-4 text-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+        <p className="text-muted-foreground text-sm">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  const { data: userData } = useQuery({
+  const { data: userData, isLoading: isUserDataLoading } = useQuery({
     queryKey: ['user-verification', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
@@ -117,12 +128,14 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     enabled: !!user?.id,
   });
 
-  if (loading) {
-    return <div>Loading...</div>;
+  // Show loading screen while checking auth state or fetching user data
+  if (loading || isUserDataLoading) {
+    return <LoadingScreen />;
   }
 
+  // Redirect to login if no user
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
   // Show waiting screen for unverified users, except for admin page which has its own checks
