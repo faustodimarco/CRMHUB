@@ -17,28 +17,17 @@ const Admin = () => {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch pending users
-  const { data: pendingUsers = [] } = useQuery<User[]>({
-    queryKey: ['pending-users'],
+  // Fetch users
+  const { data: users = [] } = useQuery<User[]>({
+    queryKey: ['users-management'],
     queryFn: async () => {
-      const { data: unverifiedUsers, error } = await supabase
+      const { data: users, error } = await supabase
         .from('users')
-        .select('id, created_at, is_verified, first_name, last_name')
-        .eq('is_verified', false);
+        .select('*')
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      // Transform the data to match our User type
-      const usersWithEmail: User[] = unverifiedUsers.map(user => ({
-        id: user.id,
-        email: 'User ID: ' + user.id, // We can't access email directly from public.users
-        created_at: user.created_at,
-        is_verified: user.is_verified,
-        first_name: user.first_name,
-        last_name: user.last_name
-      }));
-
-      return usersWithEmail;
+      return users;
     },
   });
 
@@ -47,13 +36,15 @@ const Admin = () => {
     mutationFn: async (userId: string) => {
       const { error } = await supabase
         .from('users')
-        .update({ is_verified: true })
+        .update({ 
+          verification_status: 'accepted',
+        })
         .eq('id', userId);
       
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pending-users'] });
+      queryClient.invalidateQueries({ queryKey: ['users-management'] });
       toast({
         title: "User accepted",
         description: "The user can now access the platform",
@@ -66,16 +57,61 @@ const Admin = () => {
     mutationFn: async (userId: string) => {
       const { error } = await supabase
         .from('users')
+        .update({ 
+          verification_status: 'refused',
+        })
+        .eq('id', userId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users-management'] });
+      toast({
+        title: "User refused",
+        description: "The user has been refused access to the platform",
+      });
+    },
+  });
+
+  // Revert status mutation
+  const revertStatusMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const { error } = await supabase
+        .from('users')
+        .update({ 
+          verification_status: 'pending',
+          is_verified: false,
+          verified_at: null,
+          verified_by: null
+        })
+        .eq('id', userId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users-management'] });
+      toast({
+        title: "Status reverted",
+        description: "User status has been reset to pending",
+      });
+    },
+  });
+
+  // Delete user mutation
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const { error } = await supabase
+        .from('users')
         .delete()
         .eq('id', userId);
       
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pending-users'] });
+      queryClient.invalidateQueries({ queryKey: ['users-management'] });
       toast({
-        title: "User refused",
-        description: "The user has been removed from the platform",
+        title: "User deleted",
+        description: "The user account has been permanently deleted",
       });
     },
   });
@@ -143,14 +179,16 @@ const Admin = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-semibold">User Management</h2>
-            <p className="text-muted-foreground">Accept or refuse new user registrations</p>
+            <p className="text-muted-foreground">Manage user registrations and access</p>
           </div>
         </div>
 
         <PendingUsersTable
-          pendingUsers={pendingUsers}
+          pendingUsers={users}
           onAccept={(userId) => acceptUserMutation.mutate(userId)}
           onRefuse={(userId) => refuseUserMutation.mutate(userId)}
+          onDelete={(userId) => deleteUserMutation.mutate(userId)}
+          onRevert={(userId) => revertStatusMutation.mutate(userId)}
           isLoading={isLoading}
         />
       </Card>

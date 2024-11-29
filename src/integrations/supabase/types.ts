@@ -229,6 +229,10 @@ export type Database = {
           is_verified: boolean | null
           last_name: string | null
           updated_at: string
+          verification_notes: string | null
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           created_at?: string
@@ -238,6 +242,10 @@ export type Database = {
           is_verified?: boolean | null
           last_name?: string | null
           updated_at?: string
+          verification_notes?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           created_at?: string
@@ -247,6 +255,10 @@ export type Database = {
           is_verified?: boolean | null
           last_name?: string | null
           updated_at?: string
+          verification_notes?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: []
       }
