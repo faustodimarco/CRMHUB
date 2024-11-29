@@ -53,7 +53,7 @@ const TaskCard = ({ task, onEdit, onDelete }: TaskCardProps) => {
 
   return (
     <Card 
-      className="group relative p-4 space-y-3 hover:shadow-md transition-all duration-200 border-l-4"
+      className="group relative p-4 space-y-3 [&:not(:active)]:hover:shadow-md [&:not(:active)]:transition-all [&:not(:active)]:duration-200 border-l-4"
       style={{ 
         borderLeftColor: task.priority === 'high' ? 'rgb(239, 68, 68)' : 
                         task.priority === 'medium' ? 'rgb(234, 179, 8)' : 
