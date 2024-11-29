@@ -23,18 +23,20 @@ const Admin = () => {
     queryFn: async () => {
       const { data: unverifiedUsers, error } = await supabase
         .from('users')
-        .select('id, created_at, is_verified')
+        .select('id, created_at, is_verified, first_name, last_name, email')
         .eq('is_verified', false);
 
       if (error) throw error;
 
-      // Get the email from the current session for each user
-      const usersWithEmail = unverifiedUsers?.map(user => ({
+      // Transform the data to match our User type
+      const usersWithEmail: User[] = unverifiedUsers.map(user => ({
         id: user.id,
-        email: 'User ID: ' + user.id, // We only show the ID as we can't access emails directly
+        email: user.email || 'User ID: ' + user.id,
         created_at: user.created_at,
-        is_verified: user.is_verified
-      })) || [];
+        is_verified: user.is_verified,
+        first_name: user.first_name,
+        last_name: user.last_name
+      }));
 
       return usersWithEmail;
     },
