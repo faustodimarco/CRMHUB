@@ -48,10 +48,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log('Auth state changed:', _event, session?.user?.id);
       setSession(session);
       if (session?.user) {
         const userData = await fetchUserData(session.user.id, session.user);
         setUser(userData);
+        navigate('/');
       } else {
         setUser(null);
       }
@@ -60,26 +62,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string) => {
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      if (error) throw error;
-      toast.success('Please check your email to confirm your account');
-      navigate('/login');
-    } catch (error) {
-      const authError = error as AuthError;
-      console.error('Error signing up:', authError);
-      toast.error(authError.message || 'Error signing up');
-      throw error;
-    }
-  };
-
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('Attempting to sign in...');
+      console.log('AuthContext: Attempting to sign in...');
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -108,11 +93,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(userData);
       setSession(data.session);
       toast.success('Successfully signed in');
-      navigate("/");
     } catch (error) {
       const authError = error as AuthError;
       console.error('Error signing in:', authError);
       toast.error(authError.message || 'Error signing in');
+      throw error;
+    }
+  };
+
+  const signUp = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      if (error) throw error;
+      toast.success('Please check your email to confirm your account');
+      navigate('/login');
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error('Error signing up:', authError);
+      toast.error(authError.message || 'Error signing up');
       throw error;
     }
   };
@@ -145,4 +146,4 @@ export const useAuth = () => {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-};
+}
