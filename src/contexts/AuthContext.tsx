@@ -16,13 +16,19 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const mapUserToAuthUser = (user: User, userData: any): AuthUser => ({
-  id: user.id,
-  email: user.email!,
-  created_at: user.created_at,
-  is_verified: userData?.is_verified || false,
-  is_admin: userData?.is_admin || false,
-});
+const mapUserToAuthUser = (user: User, userData: any): AuthUser => {
+  if (!user.email) {
+    throw new Error('User email is required');
+  }
+  
+  return {
+    id: user.id,
+    email: user.email,
+    created_at: user.created_at,
+    is_verified: userData?.is_verified || false,
+    is_admin: userData?.is_admin || false,
+  };
+};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -55,7 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (session?.user) {
           const userData = await fetchUserData(session.user.id);
-          setUser(userData ? mapUserToAuthUser(session.user, userData) : null);
+          if (userData) {
+            setUser(mapUserToAuthUser(session.user, userData));
+          }
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -72,7 +80,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (session?.user) {
         const userData = await fetchUserData(session.user.id);
-        setUser(userData ? mapUserToAuthUser(session.user, userData) : null);
+        if (userData) {
+          setUser(mapUserToAuthUser(session.user, userData));
+        }
         
         if (location.pathname === '/login' || location.pathname === '/signup') {
           navigate('/');
@@ -104,9 +114,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (data.user) {
         const userData = await fetchUserData(data.user.id);
-        setUser(userData ? mapUserToAuthUser(data.user, userData) : null);
-        toast.success('Successfully signed in');
-        navigate('/');
+        if (userData) {
+          setUser(mapUserToAuthUser(data.user, userData));
+          toast.success('Successfully signed in');
+          navigate('/');
+        }
       }
     } catch (error) {
       const authError = error as AuthError;

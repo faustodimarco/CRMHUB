@@ -10,8 +10,7 @@ import { toast } from "sonner";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, loading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,13 +19,10 @@ export default function Login() {
       return;
     }
     
-    setIsLoading(true);
     try {
       await signIn(email, password);
     } catch (error) {
       console.error("Login error:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -45,7 +41,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              disabled={isLoading}
+              disabled={loading}
               className="bg-background/50"
             />
           </div>
@@ -56,17 +52,17 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              disabled={isLoading}
+              disabled={loading}
               className="bg-background/50"
             />
           </div>
           <Button 
             type="submit" 
             className="w-full" 
-            disabled={isLoading}
+            disabled={loading}
             variant="default"
           >
-            {isLoading ? (
+            {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Signing in...
