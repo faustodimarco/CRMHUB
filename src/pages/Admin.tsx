@@ -17,7 +17,6 @@ const Admin = () => {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch users
   const { data: users = [] } = useQuery<User[]>({
     queryKey: ['users-management'],
     queryFn: async () => {
@@ -31,7 +30,6 @@ const Admin = () => {
     },
   });
 
-  // Accept user mutation
   const acceptUserMutation = useMutation({
     mutationFn: async (userId: string) => {
       const { error } = await supabase
@@ -52,7 +50,6 @@ const Admin = () => {
     },
   });
 
-  // Refuse user mutation
   const refuseUserMutation = useMutation({
     mutationFn: async (userId: string) => {
       const { error } = await supabase
@@ -73,7 +70,6 @@ const Admin = () => {
     },
   });
 
-  // Revert status mutation
   const revertStatusMutation = useMutation({
     mutationFn: async (userId: string) => {
       const { error } = await supabase
@@ -100,10 +96,9 @@ const Admin = () => {
   // Delete user mutation
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
-      const { error } = await supabase
-        .from('users')
-        .delete()
-        .eq('id', userId);
+      const { error } = await supabase.rpc('delete_user', {
+        user_id: userId
+      });
       
       if (error) throw error;
     },
@@ -114,9 +109,16 @@ const Admin = () => {
         description: "The user account has been permanently deleted",
       });
     },
+    onError: (error) => {
+      toast({
+        title: "Error deleting user",
+        description: "There was an error deleting the user. Please try again.",
+        variant: "destructive",
+      });
+      console.error('Error deleting user:', error);
+    },
   });
 
-  // Check if current user is admin
   const { data: isAdmin, isError, error: adminError } = useQuery({
     queryKey: ['is-admin', user?.id],
     queryFn: async () => {
