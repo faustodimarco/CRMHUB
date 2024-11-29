@@ -21,30 +21,26 @@ const Admin = () => {
   const { data: pendingUsers = [] } = useQuery<User[]>({
     queryKey: ['pending-users'],
     queryFn: async () => {
-      // First, get unverified users from public.users table
-      const { data: unverifiedUsers, error: unverifiedError } = await supabase
+      const { data: users, error } = await supabase
         .from('users')
-        .select('id, created_at, is_verified')
+        .select(`
+          id,
+          created_at,
+          is_verified,
+          auth_user:id (
+            email
+          )
+        `)
         .eq('is_verified', false);
 
-      if (unverifiedError) throw unverifiedError;
+      if (error) throw error;
 
-      // Then get the corresponding auth users
-      const { data: authUsers, error: authError } = await supabase
-        .from('auth.users')
-        .select('id, email')
-        .in('id', unverifiedUsers?.map(u => u.id) || []);
-
-      if (authError) throw authError;
-
-      // Combine the data
-      return unverifiedUsers?.map(user => {
-        const authUser = authUsers?.find(au => au.id === user.id);
-        return {
-          ...user,
-          email: authUser?.email || 'No email available'
-        };
-      }) || [];
+      return users.map(user => ({
+        id: user.id,
+        created_at: user.created_at,
+        is_verified: user.is_verified,
+        email: user.auth_user?.email || 'No email available'
+      }));
     },
   });
 
