@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { PendingUsersTable } from "@/components/admin/PendingUsersTable";
 import { User } from "@/components/admin/types";
-import { User as AuthUser } from '@supabase/supabase-js';
 
 const Admin = () => {
   const { toast } = useToast();
@@ -18,34 +17,26 @@ const Admin = () => {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch pending users with their email addresses
+  // Fetch pending users
   const { data: pendingUsers = [] } = useQuery<User[]>({
     queryKey: ['pending-users'],
     queryFn: async () => {
-      // First, get unverified users from public.users table
-      const { data: unverifiedUsers, error: unverifiedError } = await supabase
+      const { data: unverifiedUsers, error } = await supabase
         .from('users')
         .select('id, created_at, is_verified')
         .eq('is_verified', false);
 
-      if (unverifiedError) throw unverifiedError;
+      if (error) throw error;
 
-      // Then get the corresponding auth users
-      const { data: authUsers, error: authError } = await supabase.auth.admin
-        .listUsers();
+      // Get the email from the current session for each user
+      const usersWithEmail = unverifiedUsers?.map(user => ({
+        id: user.id,
+        email: 'User ID: ' + user.id, // We only show the ID as we can't access emails directly
+        created_at: user.created_at,
+        is_verified: user.is_verified
+      })) || [];
 
-      if (authError) throw authError;
-
-      // Combine the data
-      return unverifiedUsers?.map(user => {
-        const authUser = authUsers?.users?.find((au: AuthUser) => au.id === user.id);
-        return {
-          id: user.id,
-          created_at: user.created_at,
-          is_verified: user.is_verified,
-          email: authUser?.email || 'No email available'
-        };
-      }) || [];
+      return usersWithEmail;
     },
   });
 
