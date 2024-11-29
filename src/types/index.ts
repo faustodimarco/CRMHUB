@@ -8,7 +8,7 @@ export interface Invoice {
   status: 'draft' | 'pending' | 'paid';
   file_path: string;
   created_at: string;
-  user_id: string; // Making this required to match database schema
+  user_id: string;
 }
 
 export interface AuthUser {
@@ -16,4 +16,5 @@ export interface AuthUser {
   email: string;
   created_at: string;
   is_verified: boolean;
+  is_admin?: boolean;
 }

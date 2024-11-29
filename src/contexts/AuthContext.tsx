@@ -52,46 +52,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserData = async (userId: string) => {
     try {
-      // First check if user exists
-      const { data: existingUser, error: checkError } = await supabase
+      const { data: userData, error } = await supabase
         .from('users')
-        .select('*')
+        .select('is_admin, is_verified')
         .eq('id', userId)
-        .maybeSingle();
+        .single();
 
-      if (!existingUser && !checkError) {
-        // Create new user if doesn't exist
-        const { data: newUser, error: insertError } = await supabase
-          .from('users')
-          .insert([{
-            id: userId,
-            is_admin: false,
-            is_verified: false
-          }])
-          .select()
-          .single();
+      if (error) {
+        console.error('Error fetching user data:', error);
+        return;
+      }
 
-        if (insertError) throw insertError;
-
+      if (userData) {
         setUser({
           ...(session?.user as User),
-          is_admin: false,
-          is_verified: false,
-        });
-      } else if (existingUser) {
-        setUser({
-          ...(session?.user as User),
-          is_admin: existingUser.is_admin,
-          is_verified: existingUser.is_verified,
+          is_admin: userData.is_admin,
+          is_verified: userData.is_verified,
         });
       }
     } catch (error) {
       console.error('Error managing user data:', error);
-      setUser({
-        ...(session?.user as User),
-        is_admin: false,
-        is_verified: false,
-      });
     }
   };
 
