@@ -52,7 +52,7 @@ export function UserNav() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
-        className="w-64 p-2" 
+        className="w-72 p-2" 
         align="end" 
         forceMount
         sideOffset={8}
@@ -62,9 +62,9 @@ export function UserNav() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-3 p-3 rounded-lg glass-card"
         >
-          <User className="h-5 w-5 text-muted-foreground" />
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user?.email}</p>
+          <User className="h-5 w-5 text-muted-foreground shrink-0" />
+          <div className="flex flex-col space-y-1 min-w-0">
+            <p className="text-sm font-medium leading-none truncate">{user?.email}</p>
             <p className="text-xs text-muted-foreground">Manage your account</p>
           </div>
         </motion.div>
