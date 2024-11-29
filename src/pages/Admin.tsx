@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { PendingUsersTable } from "@/components/admin/PendingUsersTable";
 import { User } from "@/components/admin/types";
+import { User as AuthUser } from '@supabase/supabase-js';
 
 const Admin = () => {
   const { toast } = useToast();
@@ -37,7 +38,7 @@ const Admin = () => {
 
       // Combine the data
       return unverifiedUsers?.map(user => {
-        const authUser = authUsers?.users?.find(au => au.id === user.id);
+        const authUser = authUsers?.users?.find((au: AuthUser) => au.id === user.id);
         return {
           id: user.id,
           created_at: user.created_at,
