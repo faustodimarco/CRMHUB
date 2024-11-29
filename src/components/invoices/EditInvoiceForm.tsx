@@ -10,8 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateInvoice } from "@/services/invoiceService";
-import type { Invoice } from "@/types";
+import { updateInvoice, type Invoice } from "@/services/invoiceService";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";

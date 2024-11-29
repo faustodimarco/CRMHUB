@@ -3,34 +3,37 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
 import { Link } from "react-router-dom";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { signIn, loading } = useAuth();
+  const { signIn } = useAuth();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-    
     try {
       await signIn(email, password);
+      toast({
+        title: "Success",
+        description: "You have been logged in successfully",
+      });
     } catch (error) {
-      console.error("Login error:", error);
+      toast({
+        title: "Error",
+        description: "Invalid email or password",
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background/50 p-6">
-      <Card className="w-full max-w-md p-6 space-y-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="min-h-screen flex items-center justify-center bg-secondary/30 p-6">
+      <Card className="w-full max-w-md p-6 space-y-6">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold tracking-tighter">Welcome back</h1>
+          <h1 className="text-3xl font-bold">Welcome back</h1>
           <p className="text-muted-foreground">Enter your credentials to sign in</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -41,8 +44,6 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              disabled={loading}
-              className="bg-background/50"
             />
           </div>
           <div className="space-y-2">
@@ -52,30 +53,16 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              disabled={loading}
-              className="bg-background/50"
             />
           </div>
-          <Button 
-            type="submit" 
-            className="w-full" 
-            disabled={loading}
-            variant="default"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Signing in...
-              </>
-            ) : (
-              "Sign In"
-            )}
+          <Button type="submit" className="w-full">
+            Sign In
           </Button>
         </form>
         <div className="text-center text-sm">
           <p className="text-muted-foreground">
             Don't have an account?{" "}
-            <Link to="/signup" className="text-primary hover:underline font-medium">
+            <Link to="/signup" className="text-primary hover:underline">
               Sign up
             </Link>
           </p>

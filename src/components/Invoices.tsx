@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import type { Invoice } from "@/types";
+import type { Invoice } from "@/services/invoiceService";
 import { InvoiceListHeader } from "./invoices/InvoiceListHeader";
 import { InvoiceListItem } from "./invoices/InvoiceListItem";
 import AddInvoiceForm from "./invoices/AddInvoiceForm";
@@ -26,13 +26,7 @@ const Invoices = () => {
 
   const { data: invoices = [] } = useQuery({
     queryKey: ['invoices'],
-    queryFn: async () => {
-      const data = await getInvoices();
-      return data.map(invoice => ({
-        ...invoice,
-        status: invoice.status as 'draft' | 'pending' | 'paid'
-      })) as Invoice[];
-    },
+    queryFn: getInvoices,
   });
 
   const { mutate: deleteMutation } = useMutation({
@@ -113,7 +107,7 @@ const Invoices = () => {
               <InvoiceListItem
                 key={invoice.id}
                 invoice={invoice}
-                onEdit={(invoice) => setEditingInvoice(invoice)}
+                onEdit={setEditingInvoice}
                 onDelete={(id, filePath) => deleteMutation({ id, filePath })}
                 isSelected={selectedInvoices.includes(invoice.id)}
                 onSelect={(checked) => {

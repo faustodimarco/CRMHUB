@@ -5,7 +5,7 @@ import Clients from "@/components/Clients";
 import Tasks from "@/components/Tasks";
 import Finances from "@/components/Finances";
 import Invoices from "@/components/Invoices";
-import { UserNav } from "@/components/UserNav";
+import { UserNav } from "@/App";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 
