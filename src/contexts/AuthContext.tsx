@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserData = async (userId: string) => {
     const { data, error } = await supabase
-      .from('auth.users')
+      .from('users')
       .select('is_admin, is_verified')
       .eq('id', userId)
       .single();
@@ -62,6 +62,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ...(session?.user as User),
         is_admin: data.is_admin,
         is_verified: data.is_verified,
+      });
+    } else {
+      // If we can't find the user data, set defaults
+      setUser({
+        ...(session?.user as User),
+        is_admin: false,
+        is_verified: false,
       });
     }
   };
