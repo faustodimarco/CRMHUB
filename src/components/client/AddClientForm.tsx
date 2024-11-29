@@ -11,12 +11,16 @@ import {
 import { useState } from "react";
 import type { Client } from "@/services/clientService";
 import PhoneInput from "./PhoneInput";
+import { phonePrefixes } from "@/data/phonePrefixes";
 
-const countries = [
-  { code: "US", name: "United States", cities: ["New York", "Los Angeles", "Chicago"] },
-  { code: "GB", name: "United Kingdom", cities: ["London", "Manchester", "Birmingham"] },
-  { code: "FR", name: "France", cities: ["Paris", "Lyon", "Marseille"] },
-];
+// Get unique countries and sort them alphabetically
+const countries = [...new Set(phonePrefixes.map(p => p.country))]
+  .sort()
+  .map(country => ({
+    name: country,
+    // Find a major city for each country (this is a placeholder - you might want to replace with real city data)
+    cities: ["Capital City"]
+  }));
 
 interface AddClientFormProps {
   onSubmit: (client: Omit<Client, 'id' | 'created_at'>) => void;
@@ -108,7 +112,7 @@ const AddClientForm = ({ onSubmit }: AddClientFormProps) => {
           <Select
             value={newClient.country}
             onValueChange={(value) =>
-              setNewClient({ ...newClient, country: value })
+              setNewClient({ ...newClient, country: value, city: "" })
             }
           >
             <SelectTrigger>
@@ -116,7 +120,7 @@ const AddClientForm = ({ onSubmit }: AddClientFormProps) => {
             </SelectTrigger>
             <SelectContent>
               {countries.map((country) => (
-                <SelectItem key={country.code} value={country.name}>
+                <SelectItem key={country.name} value={country.name}>
                   {country.name}
                 </SelectItem>
               ))}
