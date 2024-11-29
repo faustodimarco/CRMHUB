@@ -78,11 +78,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+      
       if (error) throw error;
+      
+      if (data.user) {
+        const userData = await fetchUserData(data.user.id, data.user);
+        setUser(userData);
+      }
+      
       toast.success('Successfully signed in');
       navigate("/");
     } catch (error: any) {
@@ -96,6 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      setUser(null);
       navigate("/login");
     } catch (error: any) {
       console.error('Error signing out:', error);

@@ -17,14 +17,38 @@ export const useUserData = () => {
 
       if (error) {
         console.error('Error fetching user data:', error);
-        toast.error('Error fetching user data');
-        return null;
+        
+        // If user doesn't exist, create them
+        if (error.code === 'PGRST116') {
+          const { data: newUserData, error: insertError } = await supabase
+            .from('users')
+            .insert([
+              { 
+                id: userId,
+                is_admin: false,
+                is_verified: false
+              }
+            ])
+            .select('is_admin, is_verified')
+            .single();
+
+          if (insertError) {
+            console.error('Error creating user data:', insertError);
+            toast.error('Error creating user data');
+            return null;
+          }
+
+          userData = newUserData;
+        } else {
+          toast.error('Error fetching user data');
+          return null;
+        }
       }
 
       return {
         ...sessionUser,
-        is_admin: userData.is_admin || false,
-        is_verified: userData.is_verified || false,
+        is_admin: userData?.is_admin || false,
+        is_verified: userData?.is_verified || false,
       } as AuthUser;
     } catch (error) {
       console.error('Error managing user data:', error);
