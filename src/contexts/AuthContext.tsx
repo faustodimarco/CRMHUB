@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { Session, AuthError } from "@supabase/supabase-js";
+import { Session, AuthError, User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthUser } from "@/types";
@@ -15,6 +15,14 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const mapUserToAuthUser = (user: User, userData: any): AuthUser => ({
+  id: user.id,
+  email: user.email!,
+  created_at: user.created_at,
+  is_verified: userData?.is_verified || false,
+  is_admin: userData?.is_admin || false,
+});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -47,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (session?.user) {
           const userData = await fetchUserData(session.user.id);
-          setUser(userData ? { ...session.user, ...userData } : null);
+          setUser(userData ? mapUserToAuthUser(session.user, userData) : null);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -64,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (session?.user) {
         const userData = await fetchUserData(session.user.id);
-        setUser(userData ? { ...session.user, ...userData } : null);
+        setUser(userData ? mapUserToAuthUser(session.user, userData) : null);
         
         if (location.pathname === '/login' || location.pathname === '/signup') {
           navigate('/');
@@ -96,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (data.user) {
         const userData = await fetchUserData(data.user.id);
-        setUser(userData ? { ...data.user, ...userData } : null);
+        setUser(userData ? mapUserToAuthUser(data.user, userData) : null);
         toast.success('Successfully signed in');
         navigate('/');
       }

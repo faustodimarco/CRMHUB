@@ -16,5 +16,5 @@ export interface AuthUser {
   email: string;
   created_at: string;
   is_verified: boolean;
-  is_admin?: boolean;
+  is_admin: boolean;
 }
