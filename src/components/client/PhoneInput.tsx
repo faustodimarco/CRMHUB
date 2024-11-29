@@ -33,7 +33,7 @@ const PhoneInput = ({
           <SelectTrigger>
             <SelectValue placeholder="Select prefix" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper">
             {phonePrefixes.map((prefix) => (
               <SelectItem 
                 key={`${prefix.code}-${prefix.prefix}`} 
