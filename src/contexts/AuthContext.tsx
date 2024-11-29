@@ -90,6 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const userData = await fetchUserData(data.user.id, data.user);
         if (userData) {
           setUser(userData);
+          setSession(data.session);
           toast.success('Successfully signed in');
           navigate("/");
         }
@@ -107,6 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       setUser(null);
+      setSession(null);
       navigate("/login");
     } catch (error) {
       const authError = error as AuthError;
