@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Card } from "@/components/ui/card";
 import { Shield, ArrowLeft } from "lucide-react";
@@ -10,11 +10,13 @@ import { PendingUsersTable } from "@/components/admin/PendingUsersTable";
 import { AdminPermissionsTable } from "@/components/admin/AdminPermissionsTable";
 import { User } from "@/components/admin/types";
 import { AdminAccessDenied } from "@/components/admin/AdminAccessDenied";
+import { toast } from "sonner";
 
 const Admin = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: users = [] } = useQuery<User[]>({
     queryKey: ['users-management'],
@@ -50,6 +52,80 @@ const Admin = () => {
     enabled: !!user?.id,
   });
 
+  const handleAccept = async (userId: string) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ verification_status: 'accepted' })
+        .eq('id', userId);
+
+      if (error) throw error;
+      toast.success('User registration accepted');
+      queryClient.invalidateQueries({ queryKey: ['users-management'] });
+    } catch (error) {
+      toast.error('Failed to accept user');
+      console.error('Error accepting user:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRefuse = async (userId: string) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ verification_status: 'refused' })
+        .eq('id', userId);
+
+      if (error) throw error;
+      toast.success('User registration refused');
+      queryClient.invalidateQueries({ queryKey: ['users-management'] });
+    } catch (error) {
+      toast.error('Failed to refuse user');
+      console.error('Error refusing user:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (userId: string) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .rpc('delete_user', { user_id: userId });
+
+      if (error) throw error;
+      toast.success('User deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['users-management'] });
+    } catch (error) {
+      toast.error('Failed to delete user');
+      console.error('Error deleting user:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRevert = async (userId: string) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ verification_status: 'pending', is_verified: false })
+        .eq('id', userId);
+
+      if (error) throw error;
+      toast.success('User status reverted to pending');
+      queryClient.invalidateQueries({ queryKey: ['users-management'] });
+    } catch (error) {
+      toast.error('Failed to revert user status');
+      console.error('Error reverting user status:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (!isAdmin) {
     return <AdminAccessDenied />;
   }
@@ -76,6 +152,10 @@ const Admin = () => {
           <PendingUsersTable
             pendingUsers={users}
             isLoading={isLoading}
+            onAccept={handleAccept}
+            onRefuse={handleRefuse}
+            onDelete={handleDelete}
+            onRevert={handleRevert}
           />
         </Card>
 
