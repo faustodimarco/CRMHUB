@@ -52,29 +52,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserData = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      // First, try to get the user data
+      const { data: userData, error: selectError } = await supabase
         .from('users')
         .select('is_admin, is_verified')
         .eq('id', userId)
         .single();
 
-      if (!error && data) {
-        setUser({
-          ...(session?.user as User),
-          is_admin: data.is_admin,
-          is_verified: data.is_verified,
-        });
-      } else {
-        // If we can't find the user data, set defaults and create the user record
-        const newUser = {
-          ...(session?.user as User),
-          is_admin: false,
-          is_verified: false,
-        };
-        setUser(newUser);
-        
-        // Create the user record
-        await supabase
+      if (selectError || !userData) {
+        // If user data doesn't exist, create it
+        const { data: newUserData, error: insertError } = await supabase
           .from('users')
           .insert([{ 
             id: userId,
@@ -83,9 +70,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }])
           .select()
           .single();
+
+        if (insertError) throw insertError;
+
+        setUser({
+          ...(session?.user as User),
+          is_admin: false,
+          is_verified: false,
+        });
+      } else {
+        // User data exists, use it
+        setUser({
+          ...(session?.user as User),
+          is_admin: userData.is_admin,
+          is_verified: userData.is_verified,
+        });
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('Error managing user data:', error);
       // Set default values if there's an error
       setUser({
         ...(session?.user as User),
