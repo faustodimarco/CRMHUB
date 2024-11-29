@@ -113,7 +113,7 @@ const Invoices = () => {
               <InvoiceListItem
                 key={invoice.id}
                 invoice={invoice}
-                onEdit={setEditingInvoice}
+                onEdit={(invoice) => setEditingInvoice(invoice)}
                 onDelete={(id, filePath) => deleteMutation({ id, filePath })}
                 isSelected={selectedInvoices.includes(invoice.id)}
                 onSelect={(checked) => {

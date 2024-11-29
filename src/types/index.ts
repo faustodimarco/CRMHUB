@@ -8,7 +8,7 @@ export interface Invoice {
   status: 'draft' | 'pending' | 'paid';
   file_path: string;
   created_at: string;
-  user_id: string;
+  user_id?: string; // Made optional to match the service interface
 }
 
 export interface AuthUser {

@@ -52,18 +52,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserData = async (userId: string) => {
     try {
-      // First, try to get the user data
-      const { data: userData, error: selectError } = await supabase
+      // First check if user exists
+      const { data: existingUser, error: checkError } = await supabase
         .from('users')
-        .select('is_admin, is_verified')
+        .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      if (selectError || !userData) {
-        // If user data doesn't exist, create it
-        const { data: newUserData, error: insertError } = await supabase
+      if (!existingUser && !checkError) {
+        // Create new user if doesn't exist
+        const { data: newUser, error: insertError } = await supabase
           .from('users')
-          .insert([{ 
+          .insert([{
             id: userId,
             is_admin: false,
             is_verified: false
@@ -78,17 +78,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           is_admin: false,
           is_verified: false,
         });
-      } else {
-        // User data exists, use it
+      } else if (existingUser) {
         setUser({
           ...(session?.user as User),
-          is_admin: userData.is_admin,
-          is_verified: userData.is_verified,
+          is_admin: existingUser.is_admin,
+          is_verified: existingUser.is_verified,
         });
       }
     } catch (error) {
       console.error('Error managing user data:', error);
-      // Set default values if there's an error
       setUser({
         ...(session?.user as User),
         is_admin: false,
