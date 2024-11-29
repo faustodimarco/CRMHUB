@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import type { Invoice } from "@/services/invoiceService";
+import type { Invoice } from "@/types";
 import { InvoiceListHeader } from "./invoices/InvoiceListHeader";
 import { InvoiceListItem } from "./invoices/InvoiceListItem";
 import AddInvoiceForm from "./invoices/AddInvoiceForm";
@@ -26,7 +26,13 @@ const Invoices = () => {
 
   const { data: invoices = [] } = useQuery({
     queryKey: ['invoices'],
-    queryFn: getInvoices,
+    queryFn: async () => {
+      const data = await getInvoices();
+      return data.map(invoice => ({
+        ...invoice,
+        status: invoice.status as 'draft' | 'pending' | 'paid'
+      })) as Invoice[];
+    },
   });
 
   const { mutate: deleteMutation } = useMutation({

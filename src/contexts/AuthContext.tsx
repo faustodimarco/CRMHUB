@@ -51,20 +51,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const fetchUserData = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('is_admin, is_verified')
-      .eq('id', userId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('is_admin, is_verified')
+        .eq('id', userId)
+        .single();
 
-    if (!error && data) {
-      setUser({
-        ...(session?.user as User),
-        is_admin: data.is_admin,
-        is_verified: data.is_verified,
-      });
-    } else {
-      // If we can't find the user data, set defaults
+      if (!error && data) {
+        setUser({
+          ...(session?.user as User),
+          is_admin: data.is_admin,
+          is_verified: data.is_verified,
+        });
+      } else {
+        // If we can't find the user data, set defaults and create the user record
+        const newUser = {
+          ...(session?.user as User),
+          is_admin: false,
+          is_verified: false,
+        };
+        setUser(newUser);
+        
+        // Create the user record
+        await supabase
+          .from('users')
+          .insert([{ 
+            id: userId,
+            is_admin: false,
+            is_verified: false
+          }])
+          .select()
+          .single();
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      // Set default values if there's an error
       setUser({
         ...(session?.user as User),
         is_admin: false,
