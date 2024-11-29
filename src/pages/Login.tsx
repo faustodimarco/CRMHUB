@@ -32,10 +32,10 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-secondary/30 p-6">
-      <Card className="w-full max-w-md p-6 space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-background/50 p-6">
+      <Card className="w-full max-w-md p-6 space-y-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">Welcome back</h1>
+          <h1 className="text-3xl font-bold tracking-tighter">Welcome back</h1>
           <p className="text-muted-foreground">Enter your credentials to sign in</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -47,6 +47,7 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={isLoading}
+              className="bg-background/50"
             />
           </div>
           <div className="space-y-2">
@@ -57,9 +58,15 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               required
               disabled={isLoading}
+              className="bg-background/50"
             />
           </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={isLoading}
+            variant="default"
+          >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -73,7 +80,7 @@ export default function Login() {
         <div className="text-center text-sm">
           <p className="text-muted-foreground">
             Don't have an account?{" "}
-            <Link to="/signup" className="text-primary hover:underline">
+            <Link to="/signup" className="text-primary hover:underline font-medium">
               Sign up
             </Link>
           </p>

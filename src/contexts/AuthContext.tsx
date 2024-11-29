@@ -32,9 +32,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session?.user) {
           const userData = await fetchUserData(session.user.id, session.user);
           setUser(userData);
-          navigate('/');
+          if (window.location.pathname === '/login') {
+            navigate('/');
+          }
         } else {
           setUser(null);
+          if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
+            navigate('/login');
+          }
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -53,9 +58,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         const userData = await fetchUserData(session.user.id, session.user);
         setUser(userData);
-        navigate('/');
+        if (window.location.pathname === '/login') {
+          navigate('/');
+        }
       } else {
         setUser(null);
+        if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
+          navigate('/login');
+        }
       }
     });
 
@@ -83,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(userData);
       setSession(data.session);
+      navigate('/');
       toast.success('Successfully signed in');
     } catch (error) {
       const authError = error as AuthError;
