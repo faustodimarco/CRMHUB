@@ -10,17 +10,12 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import type { Client } from "@/services/clientService";
+import PhoneInput from "./PhoneInput";
 
 const countries = [
   { code: "US", name: "United States", cities: ["New York", "Los Angeles", "Chicago"] },
   { code: "GB", name: "United Kingdom", cities: ["London", "Manchester", "Birmingham"] },
   { code: "FR", name: "France", cities: ["Paris", "Lyon", "Marseille"] },
-];
-
-const phonePrefixes = [
-  { code: "US", prefix: "+1" },
-  { code: "GB", prefix: "+44" },
-  { code: "FR", prefix: "+33" },
 ];
 
 interface AddClientFormProps {
@@ -99,41 +94,12 @@ const AddClientForm = ({ onSubmit }: AddClientFormProps) => {
         />
       </div>
 
-      <div className="grid grid-cols-[120px_1fr] gap-2">
-        <div className="space-y-2">
-          <Label>Phone Prefix</Label>
-          <Select
-            value={newClient.phonePrefix}
-            onValueChange={(value) =>
-              setNewClient({ ...newClient, phonePrefix: value })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select prefix" />
-            </SelectTrigger>
-            <SelectContent>
-              {phonePrefixes.map((prefix) => (
-                <SelectItem key={prefix.code} value={prefix.prefix}>
-                  {prefix.prefix}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="phoneNumber">Phone Number</Label>
-          <Input
-            id="phoneNumber"
-            type="tel"
-            value={newClient.phoneNumber}
-            onChange={(e) =>
-              setNewClient({ ...newClient, phoneNumber: e.target.value })
-            }
-            placeholder="Enter phone number"
-            required
-          />
-        </div>
-      </div>
+      <PhoneInput
+        phonePrefix={newClient.phonePrefix}
+        phoneNumber={newClient.phoneNumber}
+        onPrefixChange={(value) => setNewClient({ ...newClient, phonePrefix: value })}
+        onNumberChange={(value) => setNewClient({ ...newClient, phoneNumber: value })}
+      />
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
