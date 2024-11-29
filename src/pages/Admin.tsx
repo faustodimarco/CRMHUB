@@ -28,12 +28,15 @@ const Admin = () => {
     queryKey: ['pending-users'],
     queryFn: async () => {
       const { data: users, error } = await supabase
-        .from('auth.users')
+        .from('users')
         .select('*')
-        .eq('confirmed_at', null);
+        .eq('is_verified', false);
       
-      if (error) throw error;
-      return users;
+      if (error) {
+        console.error('Error fetching pending users:', error);
+        throw error;
+      }
+      return users || [];
     },
   });
 
@@ -41,8 +44,8 @@ const Admin = () => {
   const acceptUserMutation = useMutation({
     mutationFn: async (userId: string) => {
       const { error } = await supabase
-        .from('auth.users')
-        .update({ confirmed_at: new Date().toISOString() })
+        .from('users')
+        .update({ is_verified: true })
         .eq('id', userId);
       
       if (error) throw error;
@@ -60,7 +63,7 @@ const Admin = () => {
   const refuseUserMutation = useMutation({
     mutationFn: async (userId: string) => {
       const { error } = await supabase
-        .from('auth.users')
+        .from('users')
         .delete()
         .eq('id', userId);
       
@@ -75,16 +78,18 @@ const Admin = () => {
     },
   });
 
-  // Check if current user is admin with improved error handling
+  // Check if current user is admin
   const { data: isAdmin, isError, error: adminError } = useQuery({
-    queryKey: ['is-admin'],
+    queryKey: ['is-admin', user?.id],
     queryFn: async () => {
-      console.log('Checking admin status for user:', user?.id);
+      if (!user?.id) return false;
+      
+      console.log('Checking admin status for user:', user.id);
       
       const { data, error } = await supabase
         .from('users')
         .select('is_admin')
-        .eq('id', user?.id)
+        .eq('id', user.id)
         .single();
       
       if (error) {
@@ -95,6 +100,7 @@ const Admin = () => {
       console.log('Admin check result:', data);
       return data?.is_admin || false;
     },
+    enabled: !!user?.id,
   });
 
   // Show error toast if admin check fails
