@@ -27,7 +27,7 @@ const AddClientForm = ({ onSubmit }: AddClientFormProps) => {
     firstName: "",
     lastName: "",
     email: "",
-    phonePrefix: "+1",
+    phonePrefix: "+1-US",
     phoneNumber: "",
     country: "",
     city: "",
@@ -37,11 +37,12 @@ const AddClientForm = ({ onSubmit }: AddClientFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const [prefix] = newClient.phonePrefix.split('-');
     const clientData = {
       first_name: newClient.firstName,
       last_name: newClient.lastName,
       email: newClient.email,
-      phone_prefix: newClient.phonePrefix,
+      phone_prefix: prefix,
       phone_number: newClient.phoneNumber,
       country: newClient.country,
       city: newClient.city,

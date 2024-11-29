@@ -16,6 +16,16 @@ interface PhoneInputProps {
   onNumberChange: (value: string) => void;
 }
 
+// Group countries by prefix
+const groupedPrefixes = phonePrefixes.reduce((acc, curr) => {
+  const key = curr.prefix;
+  if (!acc[key]) {
+    acc[key] = [];
+  }
+  acc[key].push(curr);
+  return acc;
+}, {} as Record<string, typeof phonePrefixes>);
+
 const PhoneInput = ({ 
   phonePrefix, 
   phoneNumber, 
@@ -35,18 +45,20 @@ const PhoneInput = ({
           </SelectTrigger>
           <SelectContent>
             <div className="max-h-[200px] overflow-y-auto">
-              {phonePrefixes.map((prefix) => (
-                <SelectItem 
-                  key={`${prefix.code}-${prefix.prefix}`} 
-                  value={prefix.prefix}
-                >
-                  <span className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-xs">
-                      {prefix.country}
+              {Object.entries(groupedPrefixes).map(([prefix, countries]) => (
+                countries.map((country, index) => (
+                  <SelectItem 
+                    key={`${country.code}-${prefix}`} 
+                    value={`${prefix}-${country.code}`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="text-muted-foreground text-xs">
+                        {country.country}
+                      </span>
+                      <span>{prefix}</span>
                     </span>
-                    <span>{prefix.prefix}</span>
-                  </span>
-                </SelectItem>
+                  </SelectItem>
+                ))
               ))}
             </div>
           </SelectContent>
