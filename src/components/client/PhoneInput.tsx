@@ -33,9 +33,12 @@ const PhoneInput = ({
           <SelectTrigger>
             <SelectValue placeholder="Select prefix" />
           </SelectTrigger>
-          <SelectContent className="max-h-[300px]">
+          <SelectContent>
             {phonePrefixes.map((prefix) => (
-              <SelectItem key={prefix.code} value={prefix.prefix}>
+              <SelectItem 
+                key={`${prefix.code}-${prefix.prefix}`} 
+                value={prefix.prefix}
+              >
                 <span className="flex items-center gap-2">
                   <span className="text-muted-foreground text-xs">
                     {prefix.country}
