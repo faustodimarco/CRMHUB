@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "@/hooks/useUserData";
 import { AuthUser } from "@/types";
+import { toast } from "sonner";
 
 interface AuthContextType {
   session: Session | null;
@@ -23,25 +24,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { user, setUser, fetchUserData } = useUserData();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        fetchUserData(session.user.id, session.user).then(userData => {
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        
+        if (session?.user) {
+          const userData = await fetchUserData(session.user.id, session.user);
           setUser(userData);
-          setLoading(false);
-        });
-      } else {
-        setUser(null);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        toast.error('Error initializing authentication');
+      } finally {
         setLoading(false);
       }
-    });
+    };
+
+    initializeAuth();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       if (session?.user) {
-        fetchUserData(session.user.id, session.user).then(setUser);
+        const userData = await fetchUserData(session.user.id, session.user);
+        setUser(userData);
       } else {
         setUser(null);
       }
@@ -51,26 +61,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    if (error) throw error;
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      if (error) throw error;
+      toast.success('Please check your email to confirm your account');
+      navigate('/login');
+    } catch (error: any) {
+      console.error('Error signing up:', error);
+      toast.error(error.message || 'Error signing up');
+      throw error;
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
-    navigate("/");
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+      toast.success('Successfully signed in');
+      navigate("/");
+    } catch (error: any) {
+      console.error('Error signing in:', error);
+      toast.error(error.message || 'Error signing in');
+      throw error;
+    }
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    navigate("/login");
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate("/login");
+    } catch (error: any) {
+      console.error('Error signing out:', error);
+      toast.error(error.message || 'Error signing out');
+      throw error;
+    }
   };
 
   return (
