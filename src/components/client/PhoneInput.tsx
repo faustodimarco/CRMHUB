@@ -30,23 +30,25 @@ const PhoneInput = ({
           value={phonePrefix}
           onValueChange={onPrefixChange}
         >
-          <SelectTrigger>
-            <SelectValue placeholder="Select prefix" />
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder="Prefix" />
           </SelectTrigger>
-          <SelectContent position="popper">
-            {phonePrefixes.map((prefix) => (
-              <SelectItem 
-                key={`${prefix.code}-${prefix.prefix}`} 
-                value={prefix.prefix}
-              >
-                <span className="flex items-center gap-2">
-                  <span className="text-muted-foreground text-xs">
-                    {prefix.country}
+          <SelectContent>
+            <div className="max-h-[200px] overflow-y-auto">
+              {phonePrefixes.map((prefix) => (
+                <SelectItem 
+                  key={`${prefix.code}-${prefix.prefix}`} 
+                  value={prefix.prefix}
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-muted-foreground text-xs">
+                      {prefix.country}
+                    </span>
+                    <span>{prefix.prefix}</span>
                   </span>
-                  <span>{prefix.prefix}</span>
-                </span>
-              </SelectItem>
-            ))}
+                </SelectItem>
+              ))}
+            </div>
           </SelectContent>
         </Select>
       </div>
