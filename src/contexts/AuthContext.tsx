@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useUserData } from "@/hooks/useUserData";
 import { AuthUser } from "@/types";
 import { toast } from "sonner";
 
@@ -19,22 +18,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, setUser, fetchUserData } = useUserData();
 
-  const handleSession = async (session: Session | null) => {
+  const fetchUserData = async (userId: string) => {
     try {
-      if (session?.user) {
-        const userData = await fetchUserData(session.user.id, session.user);
-        setUser(userData);
-      } else {
-        setUser(null);
-      }
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      return data;
     } catch (error) {
-      console.error('Error handling session:', error);
-      toast.error('Error handling session');
+      console.error('Error fetching user data:', error);
+      return null;
     }
   };
 
@@ -43,10 +44,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         setSession(session);
-        await handleSession(session);
+
+        if (session?.user) {
+          const userData = await fetchUserData(session.user.id);
+          setUser(userData ? { ...session.user, ...userData } : null);
+        }
       } catch (error) {
         console.error('Error initializing auth:', error);
-        toast.error('Error initializing authentication');
       } finally {
         setLoading(false);
       }
@@ -54,51 +58,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initializeAuth();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
-      await handleSession(session);
-      
-      // Handle navigation based on auth state
-      if (session) {
+      setLoading(true);
+
+      if (session?.user) {
+        const userData = await fetchUserData(session.user.id);
+        setUser(userData ? { ...session.user, ...userData } : null);
+        
         if (location.pathname === '/login' || location.pathname === '/signup') {
           navigate('/');
         }
       } else {
+        setUser(null);
         if (!['/login', '/signup'].includes(location.pathname)) {
           navigate('/login');
         }
       }
+      
+      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, location.pathname]);
 
   const signIn = async (email: string, password: string) => {
-    setLoading(true);
     try {
+      setLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      
+
       if (error) throw error;
-      
-      if (!data?.user) {
-        throw new Error('No user data received');
-      }
 
-      const userData = await fetchUserData(data.user.id, data.user);
-      
-      if (!userData) {
-        throw new Error('Failed to fetch user data');
+      if (data.user) {
+        const userData = await fetchUserData(data.user.id);
+        setUser(userData ? { ...data.user, ...userData } : null);
+        toast.success('Successfully signed in');
+        navigate('/');
       }
-
-      setUser(userData);
-      setSession(data.session);
-      toast.success('Successfully signed in');
-      navigate('/');
     } catch (error) {
       const authError = error as AuthError;
       console.error('Error signing in:', authError);
@@ -110,13 +111,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string) => {
-    setLoading(true);
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signUp({
         email,
         password,
       });
+      
       if (error) throw error;
+      
       toast.success('Please check your email to confirm your account');
       navigate('/login');
     } catch (error) {
@@ -130,18 +133,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    setLoading(true);
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      
       setUser(null);
       setSession(null);
-      navigate("/login");
+      navigate('/login');
     } catch (error) {
       const authError = error as AuthError;
       console.error('Error signing out:', authError);
       toast.error(authError.message || 'Error signing out');
-      throw error;
     } finally {
       setLoading(false);
     }

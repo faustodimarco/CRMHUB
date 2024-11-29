@@ -15,8 +15,12 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
     
+    setIsLoading(true);
     try {
       await signIn(email, password);
     } catch (error) {
