@@ -20,6 +20,7 @@ export function PendingUsersTable({
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead>Name</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Registered At</TableHead>
           <TableHead>Actions</TableHead>
@@ -28,6 +29,11 @@ export function PendingUsersTable({
       <TableBody>
         {pendingUsers.map((pendingUser) => (
           <TableRow key={pendingUser.id}>
+            <TableCell>
+              {pendingUser.first_name && pendingUser.last_name 
+                ? `${pendingUser.first_name} ${pendingUser.last_name}`
+                : 'No name provided'}
+            </TableCell>
             <TableCell>{pendingUser.email}</TableCell>
             <TableCell>{new Date(pendingUser.created_at).toLocaleDateString()}</TableCell>
             <TableCell>
@@ -58,7 +64,7 @@ export function PendingUsersTable({
         ))}
         {pendingUsers.length === 0 && (
           <TableRow>
-            <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+            <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
               No pending user registrations
             </TableCell>
           </TableRow>
