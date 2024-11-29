@@ -1,12 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { Session, User } from "@supabase/supabase-js";
+import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
-
-interface AuthUser extends User {
-  is_admin?: boolean;
-  is_verified?: boolean;
-}
+import { useUserData } from "@/hooks/useUserData";
+import { AuthUser } from "@/types";
 
 interface AuthContextType {
   session: Session | null;
@@ -21,19 +18,22 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { user, setUser, fetchUserData } = useUserData();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session?.user) {
-        fetchUserData(session.user.id);
+        fetchUserData(session.user.id, session.user).then(userData => {
+          setUser(userData);
+          setLoading(false);
+        });
       } else {
         setUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     const {
@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session?.user) {
-        fetchUserData(session.user.id);
+        fetchUserData(session.user.id, session.user).then(setUser);
       } else {
         setUser(null);
       }
@@ -49,57 +49,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const fetchUserData = async (userId: string) => {
-    try {
-      const { data: userData, error } = await supabase
-        .from('users')
-        .select('is_admin, is_verified')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') {
-          // User doesn't exist in the users table, create them
-          const { data: newUser, error: insertError } = await supabase
-            .from('users')
-            .insert([
-              { 
-                id: userId,
-                is_admin: false,
-                is_verified: false
-              }
-            ])
-            .select('is_admin, is_verified')
-            .single();
-
-          if (insertError) {
-            console.error('Error creating user data:', insertError);
-            return;
-          }
-
-          setUser({
-            ...(session?.user as User),
-            is_admin: newUser.is_admin,
-            is_verified: newUser.is_verified,
-          });
-          return;
-        }
-        console.error('Error fetching user data:', error);
-        return;
-      }
-
-      if (userData) {
-        setUser({
-          ...(session?.user as User),
-          is_admin: userData.is_admin,
-          is_verified: userData.is_verified,
-        });
-      }
-    } catch (error) {
-      console.error('Error managing user data:', error);
-    }
-  };
 
   const signUp = async (email: string, password: string) => {
     const { error } = await supabase.auth.signUp({
