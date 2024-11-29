@@ -1,89 +1,41 @@
-import { supabase } from '@/lib/supabase';
-import Papa from 'papaparse';
+import { supabase } from "@/lib/supabase";
 
-export interface Revenue {
-  id: number;
-  month: string;
-  amount: number;
-  title?: string;
-  invoice_number?: string;
-  created_at: string;
-  is_recurring: boolean;
-  recurring_end_date?: string;
-}
-
-export interface Expense {
-  id: number;
-  title: string;
-  month: string;
+interface ExpenseData {
   amount: number;
   category: string;
-  created_at: string;
-  is_recurring: boolean;
+  title: string;
+  month: string;
+  is_recurring?: boolean;
   recurring_end_date?: string;
 }
 
-export const getRevenue = async () => {
-  const { data, error } = await supabase
-    .from('revenue')
-    .select('*')
-    .order('created_at', { ascending: false });
+interface RevenueData {
+  amount: number;
+  month: string;
+  title?: string;
+  invoice_number?: string;
+  is_recurring?: boolean;
+  recurring_end_date?: string;
+}
 
-  if (error) throw error;
-  return data;
-};
-
-export const getExpenses = async () => {
-  const { data, error } = await supabase
-    .from('expenses')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) throw error;
-  return data;
-};
-
-export const addRevenue = async (revenue: Omit<Revenue, 'id' | 'created_at'>) => {
-  const { data, error } = await supabase
-    .from('revenue')
-    .insert([revenue])
-    .select()
-    .maybeSingle();
-
-  if (error) throw error;
-  return data;
-};
-
-export const addExpense = async (expense: Omit<Expense, 'id' | 'created_at'>) => {
+export const addExpense = async (expenseData: ExpenseData) => {
   const { data, error } = await supabase
     .from('expenses')
-    .insert([expense])
+    .insert(expenseData)
     .select()
-    .maybeSingle();
+    .single();
 
   if (error) throw error;
   return data;
 };
 
-export const editRevenue = async (id: number, revenue: Partial<Omit<Revenue, 'id' | 'created_at'>>) => {
+export const updateExpense = async (id: number, expenseData: Partial<ExpenseData>) => {
   const { data, error } = await supabase
-    .from('revenue')
-    .update(revenue)
+    .from('expenses')
+    .update(expenseData)
     .eq('id', id)
     .select()
-    .maybeSingle();
-
-  if (error) throw error;
-  return data;
-};
-
-export const editExpense = async (id: number, expense: Partial<Omit<Expense, 'id' | 'created_at'>>) => {
-  const { data, error } = await supabase
-    .from('expenses')
-    .update(expense)
-    .eq('id', id)
-    .select()
-    .maybeSingle();
+    .single();
 
   if (error) throw error;
   return data;
@@ -95,10 +47,30 @@ export const deleteExpense = async (id: number) => {
     .delete()
     .eq('id', id);
 
-  if (error) {
-    console.error('Error deleting expense:', error);
-    throw error;
-  }
+  if (error) throw error;
+};
+
+export const addRevenue = async (revenueData: RevenueData) => {
+  const { data, error } = await supabase
+    .from('revenue')
+    .insert(revenueData)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const updateRevenue = async (id: number, revenueData: Partial<RevenueData>) => {
+  const { data, error } = await supabase
+    .from('revenue')
+    .update(revenueData)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 };
 
 export const deleteRevenue = async (id: number) => {
@@ -107,35 +79,37 @@ export const deleteRevenue = async (id: number) => {
     .delete()
     .eq('id', id);
 
-  if (error) {
-    console.error('Error deleting revenue:', error);
-    throw error;
-  }
+  if (error) throw error;
 };
 
-export const uploadCsv = async (file: File, type: 'revenue' | 'expenses') => {
-  return new Promise((resolve, reject) => {
-    Papa.parse<Partial<Revenue | Expense>>(file, {
-      header: true,
-      complete: async (results) => {
-        try {
-          const { data, error } = await supabase
-            .from(type)
-            .insert(results.data.map(item => ({
-              ...item,
-              amount: typeof item.amount === 'string' ? parseFloat(item.amount) : item.amount,
-              is_recurring: item.is_recurring || false,
-            })));
-          
-          if (error) throw error;
-          resolve(data);
-        } catch (error) {
-          reject(error);
-        }
-      },
-      error: (error) => {
-        reject(error);
-      }
-    });
-  });
+export const getExpensesByMonth = async (month: string) => {
+  const { data, error } = await supabase
+    .from('expenses')
+    .select('*')
+    .eq('month', month)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+};
+
+export const getRevenueByMonth = async (month: string) => {
+  const { data, error } = await supabase
+    .from('revenue')
+    .select('*')
+    .eq('month', month)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+};
+
+export const calculateMonthlyTotal = (items: { amount: number }[]) => {
+  return items.reduce((total, item) => total + item.amount, 0);
+};
+
+export const calculateMonthlyBalance = (revenue: { amount: number }[], expenses: { amount: number }[]) => {
+  const totalRevenue = calculateMonthlyTotal(revenue);
+  const totalExpenses = calculateMonthlyTotal(expenses);
+  return totalRevenue - totalExpenses;
 };

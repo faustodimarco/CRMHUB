@@ -12,13 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Shield, Check, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-
-interface AuthUser {
-  id: string;
-  email: string;
-  created_at: string;
-  is_verified: boolean;
-}
+import { AuthUser } from "@/types";
 
 const AdminVerification = () => {
   const { toast } = useToast();
@@ -29,7 +23,14 @@ const AdminVerification = () => {
       const { data: { users }, error } = await supabase.auth.admin.listUsers();
       if (error) throw error;
       
-      return users.filter(user => !user.user_metadata?.is_verified) || [];
+      const unverifiedUsers = users.map(user => ({
+        id: user.id,
+        email: user.email || '',
+        created_at: user.created_at,
+        is_verified: false
+      })).filter(user => !user.is_verified);
+      
+      return unverifiedUsers;
     },
   });
 
