@@ -39,21 +39,20 @@ export function PendingUsersTable({
             <TableCell>
               <div className="flex items-center gap-2">
                 <Button
-                  variant="outline"
+                  variant="default"
                   size="sm"
                   onClick={() => onAccept(pendingUser.id)}
                   disabled={isLoading}
-                  className="text-green-600 hover:text-green-700"
+                  className="bg-primary hover:bg-primary/90"
                 >
                   <UserCheck className="w-4 h-4 mr-1" />
                   Accept
                 </Button>
                 <Button
-                  variant="outline"
+                  variant="destructive"
                   size="sm"
                   onClick={() => onRefuse(pendingUser.id)}
                   disabled={isLoading}
-                  className="text-red-600 hover:text-red-700"
                 >
                   <UserX className="w-4 h-4 mr-1" />
                   Refuse
