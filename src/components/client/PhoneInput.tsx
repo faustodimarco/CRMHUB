@@ -32,6 +32,12 @@ const PhoneInput = ({
   onPrefixChange, 
   onNumberChange 
 }: PhoneInputProps) => {
+  // Extract the country code from the phonePrefix (e.g., "+1-US" -> "USA")
+  const getDisplayValue = (value: string) => {
+    const [_, countryCode] = value.split('-');
+    return countryCode || value;
+  };
+
   return (
     <div className="grid grid-cols-[120px_1fr] gap-2">
       <div className="space-y-2">
@@ -41,7 +47,9 @@ const PhoneInput = ({
           onValueChange={onPrefixChange}
         >
           <SelectTrigger className="w-[120px]">
-            <SelectValue placeholder="Prefix" />
+            <SelectValue placeholder="Prefix">
+              {getDisplayValue(phonePrefix)}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <div className="max-h-[200px] overflow-y-auto">
