@@ -129,25 +129,11 @@ const AddClientForm = ({ onSubmit }: AddClientFormProps) => {
         </div>
         <div className="space-y-2">
           <Label>City</Label>
-          <Select
+          <Input
             value={newClient.city}
-            onValueChange={(value) =>
-              setNewClient({ ...newClient, city: value })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select city" />
-            </SelectTrigger>
-            <SelectContent>
-              {countries
-                .find((c) => c.name === newClient.country)
-                ?.cities.map((city) => (
-                  <SelectItem key={city} value={city}>
-                    {city}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
+            onChange={(e) => setNewClient({ ...newClient, city: e.target.value })}
+            placeholder="Enter city name"
+          />
         </div>
       </div>
 
