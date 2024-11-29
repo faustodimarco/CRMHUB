@@ -1,34 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { Session, AuthError, User } from "@supabase/supabase-js";
+import { Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useNavigate, useLocation } from "react-router-dom";
-import { AuthUser } from "@/types";
+import { AuthUser, AuthContextType } from "@/types/auth";
+import { mapUserToAuthUser, fetchUserData } from "@/utils/authUtils";
 import { toast } from "sonner";
 
-interface AuthContextType {
-  session: Session | null;
-  user: AuthUser | null;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  loading: boolean;
-}
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const mapUserToAuthUser = (user: User, userData: any): AuthUser => {
-  if (!user.email) {
-    throw new Error('User email is required');
-  }
-  
-  return {
-    id: user.id,
-    email: user.email,
-    created_at: user.created_at,
-    is_verified: userData?.is_verified || false,
-    is_admin: userData?.is_admin || false,
-  };
-};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -36,29 +14,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
-
-  const fetchUserData = async (userId: string) => {
-    try {
-      console.log('Fetching user data for ID:', userId);
-      
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching user data:', error);
-        return null;
-      }
-
-      console.log('User data fetched:', data);
-      return data;
-    } catch (error) {
-      console.error('Error managing user data:', error);
-      return null;
-    }
-  };
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -141,12 +96,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
-      
+
       if (error) {
+        console.error('Signup error:', error);
         if (error.message.includes('User already registered')) {
           toast.error('This email is already registered. Please sign in instead.');
           navigate('/login');
@@ -154,9 +110,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         throw error;
       }
-      
-      toast.success('Successfully signed up! You can now sign in.');
-      navigate('/login');
+
+      if (data.user) {
+        toast.success('Successfully signed up! You can now sign in.');
+        navigate('/login');
+      }
     } catch (error) {
       const authError = error as AuthError;
       console.error('Error signing up:', authError);
