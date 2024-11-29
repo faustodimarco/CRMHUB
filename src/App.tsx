@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings as SettingsIcon, LogOut, User } from "lucide-react";
+import { Settings as SettingsIcon, LogOut, User, Shield } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -20,6 +20,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Settings from "./pages/Settings";
+import AdminVerification from "./pages/AdminVerification";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,15 @@ export function UserNav() {
           <SettingsIcon className="h-4 w-4 text-muted-foreground" />
           <span>Settings</span>
         </DropdownMenuItem>
+        {user?.is_admin && (
+          <DropdownMenuItem 
+            onClick={() => navigate('/admin/verification')}
+            className="flex items-center gap-2 p-2 cursor-pointer rounded-md hover:bg-secondary/50 transition-colors duration-200"
+          >
+            <Shield className="h-4 w-4 text-muted-foreground" />
+            <span>User Verification</span>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator className="my-2 opacity-10" />
         <DropdownMenuItem 
           onClick={() => signOut()}
@@ -88,7 +98,7 @@ export function UserNav() {
   );
 }
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children, adminOnly = false }: { children: React.ReactNode, adminOnly?: boolean }) {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -97,6 +107,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (!user) {
     return <Navigate to="/login" />;
+  }
+
+  if (adminOnly && !user.is_admin) {
+    return <Navigate to="/" />;
   }
 
   return children;
@@ -111,6 +125,7 @@ const AppRoutes = () => (
     <Route path="/finances" element={<ProtectedRoute><Index /></ProtectedRoute>} />
     <Route path="/invoices" element={<ProtectedRoute><Index /></ProtectedRoute>} />
     <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+    <Route path="/admin/verification" element={<ProtectedRoute adminOnly={true}><AdminVerification /></ProtectedRoute>} />
     <Route path="/login" element={<Login />} />
     <Route path="/signup" element={<Signup />} />
   </Routes>
