@@ -21,31 +21,30 @@ const Admin = () => {
   const { data: pendingUsers = [] } = useQuery<User[]>({
     queryKey: ['pending-users'],
     queryFn: async () => {
-      const { data: users, error } = await supabase
+      // First, get unverified users from public.users table
+      const { data: unverifiedUsers, error: unverifiedError } = await supabase
         .from('users')
         .select('id, created_at, is_verified')
         .eq('is_verified', false);
-      
-      if (error) {
-        console.error('Error fetching pending users:', error);
-        throw error;
-      }
 
-      // Get the email addresses from auth metadata using the client
-      const emails = await Promise.all(
-        users?.map(async (user) => {
-          const { data: { user: authUser } } = await supabase.auth.admin.getUserById(user.id);
-          return authUser?.email || null;
-        }) || []
-      );
+      if (unverifiedError) throw unverifiedError;
+
+      // Then get the corresponding auth users
+      const { data: authUsers, error: authError } = await supabase
+        .from('auth.users')
+        .select('id, email')
+        .in('id', unverifiedUsers?.map(u => u.id) || []);
+
+      if (authError) throw authError;
 
       // Combine the data
-      const usersWithEmail = users?.map((user, index) => ({
-        ...user,
-        email: emails[index] || 'No email available'
-      })) || [];
-
-      return usersWithEmail;
+      return unverifiedUsers?.map(user => {
+        const authUser = authUsers?.find(au => au.id === user.id);
+        return {
+          ...user,
+          email: authUser?.email || 'No email available'
+        };
+      }) || [];
     },
   });
 
