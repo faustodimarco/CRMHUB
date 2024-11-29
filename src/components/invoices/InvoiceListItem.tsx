@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
-import type { Invoice } from "@/services/invoiceService";
+import type { Invoice } from "@/types";
 
 interface InvoiceListItemProps {
   invoice: Invoice;
