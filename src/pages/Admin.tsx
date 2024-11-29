@@ -23,7 +23,7 @@ const Admin = () => {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch pending users
+  // Fetch pending users with their email addresses
   const { data: pendingUsers = [] } = useQuery({
     queryKey: ['pending-users'],
     queryFn: async () => {
@@ -36,7 +36,25 @@ const Admin = () => {
         console.error('Error fetching pending users:', error);
         throw error;
       }
-      return users || [];
+
+      // Get the email addresses from auth metadata
+      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (authError) {
+        console.error('Error fetching auth users:', authError);
+        throw authError;
+      }
+
+      // Combine the data
+      const usersWithEmail = users?.map(user => {
+        const authUser = authUsers?.find(au => au.id === user.id);
+        return {
+          ...user,
+          email: authUser?.email
+        };
+      }) || [];
+
+      return usersWithEmail;
     },
   });
 
@@ -144,7 +162,7 @@ const Admin = () => {
           <TableBody>
             {pendingUsers.map((pendingUser) => (
               <TableRow key={pendingUser.id}>
-                <TableCell>{pendingUser.email}</TableCell>
+                <TableCell>{pendingUser.email || 'No email available'}</TableCell>
                 <TableCell>{new Date(pendingUser.created_at).toLocaleDateString()}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
