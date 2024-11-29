@@ -75,20 +75,36 @@ const Admin = () => {
     },
   });
 
-  // Check if current user is admin - Updated to use the users table
-  const { data: isAdmin } = useQuery({
+  // Check if current user is admin with improved error handling
+  const { data: isAdmin, isError, error: adminError } = useQuery({
     queryKey: ['is-admin'],
     queryFn: async () => {
+      console.log('Checking admin status for user:', user?.id);
+      
       const { data, error } = await supabase
         .from('users')
         .select('is_admin')
         .eq('id', user?.id)
         .single();
       
-      if (error) return false;
+      if (error) {
+        console.error('Error checking admin status:', error);
+        return false;
+      }
+      
+      console.log('Admin check result:', data);
       return data?.is_admin || false;
     },
   });
+
+  // Show error toast if admin check fails
+  if (isError && adminError) {
+    toast({
+      title: "Error checking admin status",
+      description: "Please try again later",
+      variant: "destructive",
+    });
+  }
 
   if (!isAdmin) {
     return (
