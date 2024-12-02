@@ -78,13 +78,13 @@ const Finances = () => {
     },
   });
 
-  // Calculate monthly totals - strictly for current month only
-  const monthlyRevenue = revenue
-    .filter(rev => rev.month === currentMonth)
+  // Filter out recurring entries for monthly calculations
+  const currentMonthRevenue = revenue
+    .filter(rev => rev.month === currentMonth && !rev.title?.includes('(Recurring)'))
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
-  const monthlyExpenses = expenses
-    .filter(exp => exp.month === currentMonth)
+  const currentMonthExpenses = expenses
+    .filter(exp => exp.month === currentMonth && !exp.title?.includes('(Recurring)'))
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
   // Calculate yearly revenue (sum of all past months including current)
@@ -92,7 +92,7 @@ const Finances = () => {
     .filter(rev => rev.month.startsWith(currentMonth.slice(0, 4)) && rev.month <= currentMonth)
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
-  const netProfit = monthlyRevenue - monthlyExpenses;
+  const netProfit = currentMonthRevenue - currentMonthExpenses;
 
   // Calculate percentage changes
   const lastMonthDate = new Date();
@@ -100,29 +100,29 @@ const Finances = () => {
   const lastMonth = lastMonthDate.toISOString().slice(0, 7);
 
   const previousMonthRevenue = revenue
-    .filter(rev => rev.month === lastMonth)
+    .filter(rev => rev.month === lastMonth && !rev.title?.includes('(Recurring)'))
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
   const revenueChange = previousMonthRevenue === 0 ? 0 : 
-    ((monthlyRevenue - previousMonthRevenue) / previousMonthRevenue) * 100;
+    ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100;
 
   const previousMonthExpenses = expenses
-    .filter(exp => exp.month === lastMonth)
+    .filter(exp => exp.month === lastMonth && !exp.title?.includes('(Recurring)'))
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
   const expensesChange = previousMonthExpenses === 0 ? 0 :
-    ((monthlyExpenses - previousMonthExpenses) / previousMonthExpenses) * 100;
+    ((currentMonthExpenses - previousMonthExpenses) / previousMonthExpenses) * 100;
 
-  // Transform data for the chart - consolidate entries by month
+  // Transform data for the chart - consolidate entries by month, excluding recurring entries
   const chartData = Array.from(new Set(revenue.map(rev => rev.month)))
     .sort()
     .map(month => {
       const monthlyRev = revenue
-        .filter(rev => rev.month === month)
+        .filter(rev => rev.month === month && !rev.title?.includes('(Recurring)'))
         .reduce((sum, rev) => sum + Number(rev.amount), 0);
       
       const monthlyExp = expenses
-        .filter(exp => exp.month === month)
+        .filter(exp => exp.month === month && !exp.title?.includes('(Recurring)'))
         .reduce((sum, exp) => sum + Number(exp.amount), 0);
 
       return {
@@ -138,7 +138,7 @@ const Finances = () => {
 
       <FinanceStats 
         totalRevenue={yearlyRevenue}
-        totalExpenses={monthlyExpenses}
+        totalExpenses={currentMonthExpenses}
         netProfit={netProfit}
         revenueChange={revenueChange}
         expensesChange={expensesChange}
