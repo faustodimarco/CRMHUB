@@ -78,7 +78,7 @@ const Finances = () => {
     },
   });
 
-  // Calculate current month totals
+  // Calculate current month totals - only include entries from the current month
   const monthlyRevenue = revenue
     .filter(rev => rev.month === currentMonth)
     .reduce((sum, item) => sum + item.amount, 0);
