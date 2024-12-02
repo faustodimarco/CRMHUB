@@ -12,7 +12,6 @@ const Finances = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-  const currentYear = new Date().getFullYear().toString();
 
   const { data: revenue = [] } = useQuery({
     queryKey: ['revenue'],
@@ -90,15 +89,13 @@ const Finances = () => {
 
   // Calculate yearly revenue (sum of all past months including current)
   const yearlyRevenue = revenue
-    .filter(rev => rev.month.startsWith(currentYear) && rev.month <= currentMonth)
+    .filter(rev => rev.month.startsWith(currentMonth.slice(0, 4)) && rev.month <= currentMonth)
     .reduce((sum, item) => sum + item.amount, 0);
 
   const netProfit = monthlyRevenue - monthlyExpenses;
 
   // Calculate percentage changes
-  const lastMonthRevenue = revenue
-    .filter(rev => rev.month === currentMonth)
-    .reduce((sum, item) => sum + item.amount, 0);
+  const lastMonthRevenue = monthlyRevenue;
   const previousMonthRevenue = revenue
     .filter(rev => {
       const prevMonth = new Date();
@@ -122,14 +119,24 @@ const Finances = () => {
   const expensesChange = previousMonthExpenses === 0 ? 0 :
     ((lastMonthExpenses - previousMonthExpenses) / previousMonthExpenses) * 100;
 
-  // Transform data for the chart
-  const chartData = revenue
-    .filter(rev => rev.month <= currentMonth)
-    .map((rev) => ({
-      month: rev.month,
-      revenue: rev.amount,
-      expenses: expenses.find(exp => exp.month === rev.month)?.amount || 0
-    }));
+  // Transform data for the chart - consolidate entries by month
+  const chartData = Array.from(new Set(revenue.map(rev => rev.month)))
+    .sort()
+    .map(month => {
+      const monthlyRev = revenue
+        .filter(rev => rev.month === month)
+        .reduce((sum, rev) => sum + rev.amount, 0);
+      
+      const monthlyExp = expenses
+        .filter(exp => exp.month === month)
+        .reduce((sum, exp) => sum + exp.amount, 0);
+
+      return {
+        month,
+        revenue: monthlyRev,
+        expenses: monthlyExp
+      };
+    });
 
   return (
     <div className="space-y-8">
