@@ -78,18 +78,31 @@ const Finances = () => {
     },
   });
 
-  // Filter out recurring entries for monthly calculations
+  // Calculate current month's revenue and expenses only
   const currentMonthRevenue = revenue
-    .filter(rev => rev.month === currentMonth && !rev.title?.includes('(Recurring)'))
+    .filter(rev => {
+      const isCurrentMonth = rev.month === currentMonth;
+      const isNotRecurring = !rev.title?.includes('(Recurring)');
+      return isCurrentMonth && isNotRecurring;
+    })
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
   const currentMonthExpenses = expenses
-    .filter(exp => exp.month === currentMonth && !exp.title?.includes('(Recurring)'))
+    .filter(exp => {
+      const isCurrentMonth = exp.month === currentMonth;
+      const isNotRecurring = !exp.title?.includes('(Recurring)');
+      return isCurrentMonth && isNotRecurring;
+    })
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
   // Calculate yearly revenue (sum of all past months including current)
   const yearlyRevenue = revenue
-    .filter(rev => rev.month.startsWith(currentMonth.slice(0, 4)) && rev.month <= currentMonth)
+    .filter(rev => {
+      const isThisYear = rev.month.startsWith(currentMonth.slice(0, 4));
+      const isNotFuture = rev.month <= currentMonth;
+      const isNotRecurring = !rev.title?.includes('(Recurring)');
+      return isThisYear && isNotFuture && isNotRecurring;
+    })
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
   const netProfit = currentMonthRevenue - currentMonthExpenses;
@@ -100,14 +113,22 @@ const Finances = () => {
   const lastMonth = lastMonthDate.toISOString().slice(0, 7);
 
   const previousMonthRevenue = revenue
-    .filter(rev => rev.month === lastMonth && !rev.title?.includes('(Recurring)'))
+    .filter(rev => {
+      const isLastMonth = rev.month === lastMonth;
+      const isNotRecurring = !rev.title?.includes('(Recurring)');
+      return isLastMonth && isNotRecurring;
+    })
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
   const revenueChange = previousMonthRevenue === 0 ? 0 : 
     ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100;
 
   const previousMonthExpenses = expenses
-    .filter(exp => exp.month === lastMonth && !exp.title?.includes('(Recurring)'))
+    .filter(exp => {
+      const isLastMonth = exp.month === lastMonth;
+      const isNotRecurring = !exp.title?.includes('(Recurring)');
+      return isLastMonth && isNotRecurring;
+    })
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
   const expensesChange = previousMonthExpenses === 0 ? 0 :
@@ -118,11 +139,19 @@ const Finances = () => {
     .sort()
     .map(month => {
       const monthlyRev = revenue
-        .filter(rev => rev.month === month && !rev.title?.includes('(Recurring)'))
+        .filter(rev => {
+          const isTargetMonth = rev.month === month;
+          const isNotRecurring = !rev.title?.includes('(Recurring)');
+          return isTargetMonth && isNotRecurring;
+        })
         .reduce((sum, rev) => sum + Number(rev.amount), 0);
       
       const monthlyExp = expenses
-        .filter(exp => exp.month === month && !exp.title?.includes('(Recurring)'))
+        .filter(exp => {
+          const isTargetMonth = exp.month === month;
+          const isNotRecurring = !exp.title?.includes('(Recurring)');
+          return isTargetMonth && isNotRecurring;
+        })
         .reduce((sum, exp) => sum + Number(exp.amount), 0);
 
       return {
