@@ -78,46 +78,40 @@ const Finances = () => {
     },
   });
 
-  // Calculate current month totals - only include entries from the current month
+  // Calculate monthly totals - strictly for current month only
   const monthlyRevenue = revenue
     .filter(rev => rev.month === currentMonth)
-    .reduce((sum, item) => sum + item.amount, 0);
+    .reduce((sum, item) => sum + Number(item.amount), 0);
 
   const monthlyExpenses = expenses
     .filter(exp => exp.month === currentMonth)
-    .reduce((sum, item) => sum + item.amount, 0);
+    .reduce((sum, item) => sum + Number(item.amount), 0);
 
   // Calculate yearly revenue (sum of all past months including current)
   const yearlyRevenue = revenue
     .filter(rev => rev.month.startsWith(currentMonth.slice(0, 4)) && rev.month <= currentMonth)
-    .reduce((sum, item) => sum + item.amount, 0);
+    .reduce((sum, item) => sum + Number(item.amount), 0);
 
   const netProfit = monthlyRevenue - monthlyExpenses;
 
   // Calculate percentage changes
-  const lastMonthRevenue = monthlyRevenue;
+  const lastMonthDate = new Date();
+  lastMonthDate.setMonth(lastMonthDate.getMonth() - 1);
+  const lastMonth = lastMonthDate.toISOString().slice(0, 7);
+
   const previousMonthRevenue = revenue
-    .filter(rev => {
-      const prevMonth = new Date();
-      prevMonth.setMonth(prevMonth.getMonth() - 1);
-      return rev.month === prevMonth.toISOString().slice(0, 7);
-    })
-    .reduce((sum, item) => sum + item.amount, 0);
+    .filter(rev => rev.month === lastMonth)
+    .reduce((sum, item) => sum + Number(item.amount), 0);
 
   const revenueChange = previousMonthRevenue === 0 ? 0 : 
-    ((lastMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100;
+    ((monthlyRevenue - previousMonthRevenue) / previousMonthRevenue) * 100;
 
-  const lastMonthExpenses = monthlyExpenses;
   const previousMonthExpenses = expenses
-    .filter(exp => {
-      const prevMonth = new Date();
-      prevMonth.setMonth(prevMonth.getMonth() - 1);
-      return exp.month === prevMonth.toISOString().slice(0, 7);
-    })
-    .reduce((sum, item) => sum + item.amount, 0);
+    .filter(exp => exp.month === lastMonth)
+    .reduce((sum, item) => sum + Number(item.amount), 0);
 
   const expensesChange = previousMonthExpenses === 0 ? 0 :
-    ((lastMonthExpenses - previousMonthExpenses) / previousMonthExpenses) * 100;
+    ((monthlyExpenses - previousMonthExpenses) / previousMonthExpenses) * 100;
 
   // Transform data for the chart - consolidate entries by month
   const chartData = Array.from(new Set(revenue.map(rev => rev.month)))
@@ -125,11 +119,11 @@ const Finances = () => {
     .map(month => {
       const monthlyRev = revenue
         .filter(rev => rev.month === month)
-        .reduce((sum, rev) => sum + rev.amount, 0);
+        .reduce((sum, rev) => sum + Number(rev.amount), 0);
       
       const monthlyExp = expenses
         .filter(exp => exp.month === month)
-        .reduce((sum, exp) => sum + exp.amount, 0);
+        .reduce((sum, exp) => sum + Number(exp.amount), 0);
 
       return {
         month,
